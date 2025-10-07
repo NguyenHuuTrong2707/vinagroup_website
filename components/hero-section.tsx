@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 
 type Slide =
   | { type: "image"; src: string; alt: string }
@@ -41,8 +41,8 @@ export function HeroSection() {
     return () => clearInterval(timer)
   }, [slides.length, isPaused, durationMs])
 
-  const goNext = () => setIndex((p) => (p + 1) % slides.length)
-  const goPrev = () => setIndex((p) => (p - 1 + slides.length) % slides.length)
+  // const goNext = () => setIndex((p) => (p + 1) % slides.length)
+  // const goPrev = () => setIndex((p) => (p - 1 + slides.length) % slides.length)
 
   return (
     <section
@@ -98,24 +98,25 @@ export function HeroSection() {
       <div className="relative container mx-auto px-4 h-full flex items-center">
         <div className="max-w-2xl text-white">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-balance leading-tight">
-            Năng lực sản xuất lốp xe đẳng cấp
+            Phân phối lốp xe cao cấp từ các thương hiệu lớn
           </h1>
           <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 text-pretty opacity-90 leading-relaxed">
-            Dẫn đầu ngành với các giải pháp lốp sáng tạo và công nghệ sản xuất tiên tiến hơn 30 năm.
+          Nhà phân phối chính thức của các nhà sản xuất lốp xe hàng đầu thế giới. Chất lượng, hiệu suất và an toàn cho mọi hành trình.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Link href="/about">
+            <Link href="/products">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
-                Tìm hiểu thêm
+                Sản phẩm
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/products">
+            <Link href="/catalog">
               <Button
                 size="lg"
                 variant="outline"
                 className="border-white text-white hover:bg-white hover:text-slate-900 bg-transparent w-full sm:w-auto"
               >
-                Sản phẩm
+                Catalog
               </Button>
             </Link>
           </div>
@@ -124,7 +125,7 @@ export function HeroSection() {
       </div>
 
       {/* Thanh điều khiển giữa phía dưới banner */}
-      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-4 sm:bottom-6 flex items-center gap-3 bg-black/30 backdrop-blur-sm rounded-full px-3 py-2">
+      {/* <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-4 sm:bottom-6 flex items-center gap-3 bg-black/30 backdrop-blur-sm rounded-full px-3 py-2">
         <button
           onClick={goPrev}
           aria-label="Slide trước"
@@ -149,7 +150,7 @@ export function HeroSection() {
         >
           <ChevronRight className="h-4 w-4" />
         </button>
-      </div>
+      </div> */}
     </section>
   )
 }

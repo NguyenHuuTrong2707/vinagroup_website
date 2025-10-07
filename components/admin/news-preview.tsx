@@ -1,13 +1,8 @@
 'use client'
 
 import React from 'react'
-import { NewsArticle } from '@/lib/schemas/news-schema'
-import { Calendar, User, Eye, Heart, MessageCircle, Tag } from 'lucide-react'
-
-interface NewsPreviewProps {
-  article: NewsArticle
-  className?: string
-}
+import { Calendar, User, Tag } from 'lucide-react'
+import { NewsPreviewProps, NewsArticle } from '@/types'
 
 export const NewsPreview: React.FC<NewsPreviewProps> = ({ article, className = '' }) => {
   const formatDate = (date: Date) => {
@@ -84,18 +79,6 @@ export const NewsPreview: React.FC<NewsPreviewProps> = ({ article, className = '
           <div className="flex items-center space-x-1">
             <Calendar className="h-4 w-4" />
             <span>{article.publishedAt ? formatDate(article.publishedAt) : formatDate(article.createdAt)}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Eye className="h-4 w-4" />
-            <span>{article.viewCount.toLocaleString()}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Heart className="h-4 w-4" />
-            <span>{article.likes}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <MessageCircle className="h-4 w-4" />
-            <span>{article.comments.length}</span>
           </div>
         </div>
 
@@ -213,8 +196,6 @@ export const NewsPreviewCompact: React.FC<{ article: NewsArticle }> = ({ article
         </p>
         <div className="flex items-center space-x-3 text-xs text-gray-400 dark:text-gray-500 mt-1">
           <span>{article.author}</span>
-          <span>{article.viewCount} lượt xem</span>
-          <span>{article.likes} thích</span>
         </div>
       </div>
     </div>

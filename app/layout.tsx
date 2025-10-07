@@ -6,14 +6,16 @@ import { Merriweather, Lora, Roboto, Open_Sans, Nunito, Montserrat, Inter } from
 import { Analytics } from "@vercel/analytics/next"
 import { ChatWidget } from "@/components/chat-widget"
 import { FirebaseProvider } from "@/components/firebase-provider"
+import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 import { Suspense } from "react"
+import { ConditionalChatWidget } from "@/components/conditional-chat-widget"
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.haohuatire.vn"),
+  metadataBase: new URL("https://www.viettires.com"),
   title: {
-    default: "Haohua Tire - Sản Xuất Lốp Xe Cao Cấp",
-    template: "%s | Haohua Tire",
+    default: "VINAGROUP - Phân Phối Lốp Xe Chất Lượng Cao",
+    template: "%s | VINAGROUP",
   },
   description:
     "Nhà sản xuất lốp TBR và PCR chất lượng cao với mạng lưới phân phối toàn cầu và hỗ trợ 24/7.",
@@ -23,33 +25,33 @@ export const metadata: Metadata = {
     "lốp PCR",
     "lốp xe tải",
     "lốp ô tô",
-    "nhà máy lốp Việt Nam",
-    "Haohua Tire",
+    "nhà phân phối lốp Việt Nam",
+    "VINAGROUP",
   ],
-  authors: [{ name: "Haohua Tire" }],
+  authors: [{ name: "VINAGROUP" }],
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
-    url: "https://www.haohuatire.vn/",
-    title: "Haohua Tire - Sản Xuất Lốp Xe Cao Cấp",
+    url: "https://www.viettires.com/",
+    title: "VINAGROUP - Phân Phối Lốp Xe Chất Lượng Cao",
     description:
       "Nhà sản xuất lốp TBR và PCR chất lượng cao với mạng lưới phân phối toàn cầu và hỗ trợ 24/7.",
-    siteName: "Haohua Tire",
+    siteName: "VINAGROUP",
     locale: "vi_VN",
     images: [
       {
         url: "/modern-tire-manufacturing-facility.jpg",
         width: 1200,
         height: 630,
-        alt: "Haohua Tire",
+        alt: "VINAGROUP",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Haohua Tire - Sản Xuất Lốp Xe Cao Cấp",
+    title: "VINAGROUP - Phân Phối Lốp Xe Chất Lượng Cao",
     description:
       "Nhà sản xuất lốp TBR và PCR chất lượng cao với mạng lưới phân phối toàn cầu và hỗ trợ 24/7.",
     images: ["/modern-tire-manufacturing-facility.jpg"],
@@ -114,13 +116,11 @@ export default function RootLayout({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "Haohua Tire",
+            name: "VINAGROUP",
             url: "https://www.haohuatire.vn/",
-            logo: "https://www.haohuatire.vn/placeholder-logo.png",
+            logo: "https://www.viettires.com/placeholder-logo.png",
             sameAs: [
-              "https://facebook.com/haohuatire",
-              "https://linkedin.com/company/haohuatire",
-              "https://youtube.com/haohuatire",
+              "https://facebook.com/viettires",
             ],
             address: {
               "@type": "PostalAddress",
@@ -131,9 +131,10 @@ export default function RootLayout({
         <FirebaseProvider>
           <Suspense>
             {children}
-            <ChatWidget />
+            <ConditionalChatWidget />
             <Analytics />
           </Suspense>
+          <Toaster />
         </FirebaseProvider>
       </body>
     </html>

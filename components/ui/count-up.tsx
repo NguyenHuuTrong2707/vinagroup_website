@@ -1,15 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-
-interface CountUpProps {
-  end: number
-  durationMs?: number
-  decimals?: number
-  prefix?: string
-  suffix?: string
-  useGrouping?: boolean
-}
+import { CountUpProps } from "@/types"
 
 export function CountUp({
   end,

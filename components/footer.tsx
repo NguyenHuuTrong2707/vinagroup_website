@@ -11,8 +11,11 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1 ">
             <Image src="/logo.png" alt="Vinagroup" width={120} height={120} className="w-16 h-16 sm:w-20 sm:h-20 "
             />
-            <p className="typo-caption text-gray-300 leading-relaxed mb-3 sm:mb-4 pt-2">
+            <p className="typo-caption text-gray-300 leading-relaxed mb-3 sm:mb-4 pt-2 font-bold">
               Công ty VINAGROUP
+            </p>
+            <p className="typo-caption text-gray-300 leading-relaxed mb-3 sm:mb-4 font-semibold">
+              Địa chỉ: ##########
             </p>
             <div>
               <p className="typo-caption font-medium mb-2">Theo dõi chúng tôi</p>
@@ -29,9 +32,6 @@ export function Footer() {
                   Công ty
                 </Link>
               </li>
-
-
-
             </ul>
           </div>
 
@@ -41,22 +41,22 @@ export function Footer() {
             <ul className="space-y-1 sm:space-y-2 typo-caption text-gray-300">
               <li>
                 <Link href="/products" className="hover:text-primary transition-colors block py-0.5 sm:py-1">
-                  Lốp ô tô con
+                  Sản phẩm 1
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-primary transition-colors block py-0.5 sm:py-1">
-                  Lốp xe tải nhẹ
+                  Sản phẩm 2
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-primary transition-colors block py-0.5 sm:py-1">
-                  Lốp xe tải & xe buýt
+                  Sản phẩm 3
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-primary transition-colors block py-0.5 sm:py-1">
-                  Lốp OTR
+                  Sản phẩm 4
                 </Link>
               </li>
             </ul>
@@ -67,11 +67,6 @@ export function Footer() {
             <h4 className="font-semibold mb-2 sm:mb-3 lg:mb-4 typo-menu">Liên hệ</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-4 lg:gap-2">
               <div className="space-y-1 sm:space-y-2 typo-caption text-gray-300">
-                <div className="py-0.5 sm:py-1">Tiếng Việt</div>
-                <div className="py-0.5 sm:py-1">English</div>
-              </div>
-              <div className="space-y-1 sm:space-y-2 typo-caption text-gray-300">
-                <div className="py-0.5 sm:py-1">中文</div>
                 <div>
                   <Link href="/contact" className="hover:text-primary transition-colors block py-0.5 sm:py-1">
                     contact@viettires.com
@@ -83,7 +78,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-700 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center typo-caption text-gray-400">
-          <p>&copy; 2025 VINAGROUP Co., .Bảo lưu mọi quyền.</p>
+          <p>&copy; 2025 VINAGROUP. Bảo lưu mọi quyền.</p>
         </div>
       </div>
     </footer>

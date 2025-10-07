@@ -1,13 +1,8 @@
 'use client'
 
 import React from 'react'
-import { SEOAnalysis } from '@/lib/schemas/news-schema'
 import { CheckCircle, XCircle, AlertCircle, TrendingUp, Eye, Target } from 'lucide-react'
-
-interface SEOScoringProps {
-  analysis: SEOAnalysis
-  className?: string
-}
+import { SEOScoringProps, SEOAnalysis } from '@/types'
 
 export const SEOScoring: React.FC<SEOScoringProps> = ({ analysis, className = '' }) => {
   const getScoreColor = (score: number) => {

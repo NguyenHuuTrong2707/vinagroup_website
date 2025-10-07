@@ -3,13 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Facebook, Twitter, Linkedin, Share2, Check } from "lucide-react"
-
-interface SocialShareButtonsProps {
-  url?: string
-  title?: string
-  description?: string
-  compact?: boolean
-}
+import { SocialShareButtonsProps } from "@/types"
 
 export function SocialShareButtons({
   url,

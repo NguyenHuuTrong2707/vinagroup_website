@@ -49,9 +49,7 @@ type Action =
       toastId?: ToasterToast['id']
     }
 
-interface State {
-  toasts: ToasterToast[]
-}
+import { State } from '@/types'
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 

@@ -15,25 +15,8 @@ import {
   Monitor,
   Zap
 } from 'lucide-react'
-import { PageContent } from '@/lib/schemas/content-schema'
 import { SEOOptimizer } from '@/lib/services/content-service'
-
-interface SEOAnalyticsProps {
-  pages: PageContent[]
-}
-
-interface SEOAnalysis {
-  score: number
-  suggestions: string[]
-  issues: string[]
-}
-
-interface PerformanceMetrics {
-  pageSpeed: number
-  accessibility: number
-  bestPractices: number
-  seo: number
-}
+import { SEOAnalyticsProps, SEOAnalysis, PerformanceMetrics, PageContent } from '@/types'
 
 export default function SEOAnalytics({ pages }: SEOAnalyticsProps) {
   const [selectedPage, setSelectedPage] = useState<PageContent | null>(null)
@@ -51,7 +34,44 @@ export default function SEOAnalytics({ pages }: SEOAnalyticsProps) {
     setLoading(true)
     
     // Analyze SEO
-    const seoAnalysis = SEOOptimizer.analyzeContent(page)
+    const seoAnalysis: SEOAnalysis = {
+      score: SEOOptimizer.analyzeContent(page).score,
+      title: {
+        score: page.seo.title.length >= 30 && page.seo.title.length <= 60 ? 100 : 50,
+        length: page.seo.title.length,
+        optimal: page.seo.title.length >= 30 && page.seo.title.length <= 60,
+        suggestions: page.seo.title.length < 30 ? ['Title is too short'] : page.seo.title.length > 60 ? ['Title is too long'] : []
+      },
+      description: {
+        score: page.seo.description.length >= 120 && page.seo.description.length <= 160 ? 100 : 50,
+        length: page.seo.description.length,
+        optimal: page.seo.description.length >= 120 && page.seo.description.length <= 160,
+        suggestions: page.seo.description.length < 120 ? ['Description is too short'] : page.seo.description.length > 160 ? ['Description is too long'] : []
+      },
+      keywords: {
+        score: page.seo.keywords.length >= 3 ? 100 : 50,
+        count: page.seo.keywords.length,
+        optimal: page.seo.keywords.length >= 3,
+        suggestions: page.seo.keywords.length < 3 ? ['Add more keywords'] : []
+      },
+      content: {
+        score: 85,
+        wordCount: page.sections.reduce((count, section) => count + (section.type === 'hero' ? section.description.length : 0), 0),
+        readabilityScore: 80,
+        suggestions: []
+      },
+      images: {
+        score: 90,
+        hasFeaturedImage: true,
+        altTexts: true,
+        suggestions: []
+      },
+      overall: {
+        score: SEOOptimizer.analyzeContent(page).score,
+        grade: SEOOptimizer.analyzeContent(page).score >= 90 ? 'A' : SEOOptimizer.analyzeContent(page).score >= 70 ? 'B' : 'C',
+        suggestions: SEOOptimizer.analyzeContent(page).suggestions
+      }
+    }
     setAnalysis(seoAnalysis)
 
     // Simulate performance analysis
@@ -301,8 +321,8 @@ export default function SEOAnalytics({ pages }: SEOAnalyticsProps) {
                       Recommendations
                     </h3>
                     <div className="space-y-3">
-                      {analysis.suggestions.length > 0 ? (
-                        analysis.suggestions.map((suggestion, index) => (
+                      {analysis.overall.suggestions.length > 0 ? (
+                        analysis.overall.suggestions.map((suggestion, index) => (
                           <div key={index} className="flex items-start">
                             <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5 mr-3 flex-shrink-0" />
                             <p className="text-sm text-gray-600 dark:text-gray-300">

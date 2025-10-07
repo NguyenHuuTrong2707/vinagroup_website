@@ -4,12 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Facebook, Twitter, Linkedin, Youtube, Share2, X, Users } from "lucide-react"
-
-interface SocialMediaWidgetProps {
-  showShareButtons?: boolean
-  showFollowButtons?: boolean
-  compact?: boolean
-}
+import { SocialMediaWidgetProps } from "@/types"
 
 export function SocialMediaWidget({
   showShareButtons = true,

@@ -26,3 +26,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# scripts
+scripts/serviceAccountKey.json
+scripts/create-admin.js

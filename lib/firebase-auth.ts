@@ -12,13 +12,32 @@ import {
   EmailAuthProvider,
 } from 'firebase/auth'
 import { auth } from './firebase'
+import { useState, useEffect } from 'react'
+import { getDocument } from './firebase-firestore'
 
 // Auth types
-export interface AuthUser extends User {}
+import { AuthUser } from '@/types'
 
 // Auth functions
 export const signIn = async (email: string, password: string): Promise<UserCredential> => {
   return await signInWithEmailAndPassword(auth, email, password)
+}
+
+// Admin-specific sign in with role checking
+export const signInAsAdmin = async (email: string, password: string): Promise<UserCredential> => {
+  // First, authenticate with Firebase Auth
+  const userCredential = await signInWithEmailAndPassword(auth, email, password)
+  
+  // Then check if user has admin role in Firestore
+  const userDoc = await getDocument('users', userCredential.user.uid)
+  
+  if (!userDoc || userDoc.role !== 'admin') {
+    // Sign out the user if they don't have admin role
+    await signOut(auth)
+    throw new Error('INSUFFICIENT_PERMISSIONS')
+  }
+  
+  return userCredential
 }
 
 export const signUp = async (email: string, password: string): Promise<UserCredential> => {
@@ -61,4 +80,31 @@ export const reauthenticateUser = async (password: string): Promise<UserCredenti
 // Auth state listener
 export const onAuthStateChange = (callback: (user: AuthUser | null) => void) => {
   return onAuthStateChanged(auth, callback)
+}
+
+// Custom hook for auth state
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user)
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  return {
+    user,
+    loading,
+    signIn,
+    signUp,
+    logout,
+    resetPassword,
+    updateUserProfile,
+    updateUserPassword,
+    reauthenticateUser,
+  }
 }

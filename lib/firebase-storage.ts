@@ -13,15 +13,7 @@ import {
 import { storage } from './firebase'
 
 // Storage types
-export interface StorageFile {
-  name: string
-  fullPath: string
-  downloadURL: string
-  size: number
-  contentType: string
-  timeCreated: string
-  updated: string
-}
+import { StorageFile } from '@/types'
 
 // File upload functions
 export const uploadFile = async (

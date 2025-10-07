@@ -10,18 +10,7 @@ import { ChevronLeft, ChevronRight, Search, Home } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
-interface Product {
-  name: string
-  description: string
-  image: string
-  brand: string
-  category: string
-  performanceMetrics: Array<{
-    label: string
-    value: number
-  }>
-  features: string[]
-}
+import { Product } from '@/types'
 
 export default function DynamicProductDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)

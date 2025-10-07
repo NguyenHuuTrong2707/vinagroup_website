@@ -21,10 +21,7 @@ import {
 import { db } from './firebase'
 
 // Firestore types
-export interface FirestoreDocument {
-  id: string
-  [key: string]: any
-}
+import { FirestoreDocument } from '@/types'
 
 // Generic CRUD operations
 export const createDocument = async (

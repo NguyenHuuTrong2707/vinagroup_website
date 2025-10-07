@@ -1,22 +1,11 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { AuthUser, onAuthStateChange } from '@/lib/firebase-auth'
-
-// Firebase context types
-interface FirebaseContextType {
-  user: AuthUser | null
-  loading: boolean
-  isAuthenticated: boolean
-}
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { onAuthStateChange } from '@/lib/firebase-auth'
+import { AuthUser, FirebaseContextType, FirebaseProviderProps } from '@/types'
 
 // Create context
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined)
-
-// Provider component
-interface FirebaseProviderProps {
-  children: ReactNode
-}
 
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null)

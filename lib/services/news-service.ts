@@ -22,27 +22,18 @@ export class NewsService {
     this.categories = [
       {
         id: 'cat-1',
-        name: 'Công nghệ',
-        slug: 'cong-nghe',
-        description: 'Tin tức về công nghệ và đổi mới',
-        color: '#3B82F6',
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
-      },
-      {
-        id: 'cat-2',
-        name: 'Sản phẩm',
-        slug: 'san-pham',
-        description: 'Tin tức về sản phẩm mới',
+        name: 'Tin tức',
+        slug: 'tin-tuc',
+        description: 'Tin tức và thông báo',
         color: '#10B981',
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-01')
       },
       {
-        id: 'cat-3',
-        name: 'Công ty',
-        slug: 'cong-ty',
-        description: 'Tin tức về công ty',
+        id: 'cat-2',
+        name: 'Sự kiện',
+        slug: 'su-kien',
+        description: 'Sự kiện và hoạt động của công ty',
         color: '#F59E0B',
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-01')
@@ -70,10 +61,10 @@ export class NewsService {
           width: 800,
           height: 600
         },
-        author: 'Admin',
-        status: 'published',
-        category: 'cat-2',
-        tags: ['tag-1', 'tag-2'],
+         author: 'Admin',
+         status: 'published',
+         category: 'cat-1', // Tin tức
+         tags: ['tag-1', 'tag-2'],
         seo: {
           title: 'Haohua Tire ra mắt dòng lốp TBR mới với công nghệ tiên tiến',
           description: 'Dòng lốp TBR mới của Haohua Tire được trang bị công nghệ tiên tiến, mang lại hiệu suất vượt trội và độ bền cao.',
@@ -82,9 +73,7 @@ export class NewsService {
         publishedAt: new Date('2024-01-15'),
         createdAt: new Date('2024-01-10'),
         updatedAt: new Date('2024-01-15'),
-        viewCount: 1250,
-        likes: 45,
-        comments: []
+        
       },
       {
         id: 'news-2',
@@ -92,10 +81,10 @@ export class NewsService {
         slug: 'cong-nghe-san-xuat-lop-xe-hien-dai',
         excerpt: 'Khám phá quy trình sản xuất lốp xe hiện đại với công nghệ AI và tự động hóa tại nhà máy Haohua Tire.',
         content: '<h2>Quy trình sản xuất hiện đại</h2><p>Nhà máy Haohua Tire áp dụng công nghệ sản xuất tiên tiến nhất hiện nay.</p><h3>Công nghệ AI</h3><p>Hệ thống AI giúp tối ưu hóa quy trình sản xuất và đảm bảo chất lượng sản phẩm.</p>',
-        author: 'Admin',
-        status: 'published',
-        category: 'cat-1',
-        tags: ['tag-1', 'tag-4'],
+         author: 'Admin',
+         status: 'published',
+         category: 'cat-2', // Sự kiện
+         tags: ['tag-1', 'tag-4'],
         seo: {
           title: 'Công nghệ sản xuất lốp xe hiện đại tại nhà máy Haohua Tire',
           description: 'Khám phá quy trình sản xuất lốp xe hiện đại với công nghệ AI và tự động hóa tại nhà máy Haohua Tire.',
@@ -104,9 +93,6 @@ export class NewsService {
         publishedAt: new Date('2024-01-20'),
         createdAt: new Date('2024-01-18'),
         updatedAt: new Date('2024-01-20'),
-        viewCount: 890,
-        likes: 32,
-        comments: []
       }
     ]
   }
@@ -152,15 +138,12 @@ export class NewsService {
     return this.articles.find(article => article.slug === slug) || null
   }
 
-  async createArticle(articleData: Omit<NewsArticle, 'id' | 'createdAt' | 'updatedAt' | 'viewCount' | 'likes' | 'comments'>): Promise<NewsArticle> {
+  async createArticle(articleData: Omit<NewsArticle, 'id' | 'createdAt' | 'updatedAt'>): Promise<NewsArticle> {
     const newArticle: NewsArticle = {
       ...articleData,
       id: `news-${Date.now()}`,
       createdAt: new Date(),
-      updatedAt: new Date(),
-      viewCount: 0,
-      likes: 0,
-      comments: []
+      updatedAt: new Date()
     }
 
     this.articles.push(newArticle)

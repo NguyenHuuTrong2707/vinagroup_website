@@ -22,18 +22,12 @@ import {
   Download,
   RefreshCw
 } from 'lucide-react'
-import { PageContent, ImageMetadata, ContentFilter } from '@/lib/schemas/content-schema'
 import { ContentService } from '@/lib/services/content-service'
 import { ImageService } from '@/lib/services/image-service'
 import PageContentEditor from './page-content-editor'
 import { NewsManagement } from './news-management'
 
-interface AdminDashboardProps {
-  initialData?: {
-    pages: PageContent[]
-    images: ImageMetadata[]
-  }
-}
+import { AdminDashboardProps, PageContent, ImageMetadata, ContentFilter } from '@/types'
 
 export default function AdminDashboard({ initialData }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<'content' | 'news' | 'images' | 'seo' | 'analytics'>('content')

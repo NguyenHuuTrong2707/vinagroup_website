@@ -18,15 +18,13 @@ import {
   Download,
   Upload
 } from 'lucide-react'
-import { NewsArticle, NewsCategory, NewsTag, NewsFilter, SEOAnalysis } from '@/lib/schemas/news-schema'
+// import { NewsArticle, NewsCategory, NewsTag, NewsFilter, SEOAnalysis } from '@/lib/schemas/news-schema'
 import { NewsService } from '@/lib/services/news-service'
 import { HTMLEditor } from './html-editor'
 import { NewsPreview, NewsPreviewCompact } from './news-preview'
 import { SEOScoring, SEOScoreCompact } from './seo-scoring'
 
-interface NewsManagementProps {
-  className?: string
-}
+import { NewsManagementProps, NewsArticle, NewsCategory, NewsTag, NewsFilter, SEOAnalysis } from '@/types'
 
 export const NewsManagement: React.FC<NewsManagementProps> = ({ className = '' }) => {
   const [articles, setArticles] = useState<NewsArticle[]>([])
