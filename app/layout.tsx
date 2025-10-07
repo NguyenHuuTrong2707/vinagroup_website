@@ -32,6 +32,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  
   openGraph: {
     type: "website",
     url: "https://www.viettires.com/",

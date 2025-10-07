@@ -89,9 +89,6 @@ export default function NewsManagement() {
               <option value="">Tất cả loại</option>
               <option value="tin-tuc">Tin tức</option>
               <option value="su-kien">Sự kiện</option>
-              <option value="cong-nghe">Công nghệ</option>
-              <option value="san-pham">Sản phẩm</option>
-              <option value="tuyen-dung">Tuyển dụng</option>
             </select>
             <select 
               value={statusFilter}
@@ -102,9 +99,6 @@ export default function NewsManagement() {
               <option value="published">Đã xuất bản</option>
               <option value="draft">Bản nháp</option>
             </select>
-            <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              <Filter className="h-4 w-4" />
-            </button>
           </div>
         </div>
       </div>
