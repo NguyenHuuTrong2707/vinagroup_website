@@ -424,27 +424,25 @@ export function Header() {
                     {brandsLoading ? (
                       <div className="text-sm text-muted-foreground">Loading brands...</div>
                     ) : brands.length > 0 ? (
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-3 gap-4 sm:grid-cols-4">
                         {brands.map((brand) => (
                           <Link
                             key={brand.id}
-                            href={`/products?category=${encodeURIComponent(brand.name.toLowerCase().replace(/\s+/g, '-'))}`}
-                            className={`group/brand flex justify-center items-center p-2 hover:bg-accent rounded-lg transition-colors${isActive(`/products?category=${encodeURIComponent(brand.name.toLowerCase().replace(/\s+/g, '-'))}`) ? " bg-accent" : ""}`}
+                            href={`/products?category=${encodeURIComponent(
+                              brand.name.toLowerCase().replace(/\s+/g, '-')
+                            )}`}
+                            className="group/brand flex flex-col items-center justify-center p-3 border border-border rounded-xl 
+                 bg-white shadow-sm hover:shadow-md transition-all hover:border-primary/30"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            <div className="relative">
+                            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
                               <Image
                                 src={brand.image}
                                 alt={brand.name}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 object-contain"
+                                fill
+                                className="object-contain transition-transform duration-300 group-hover/brand:scale-105"
                                 title={brand.name}
                               />
-                              {/* Tooltip for mobile */}
-                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/brand:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                                {brand.name}
-                              </div>
                             </div>
                           </Link>
                         ))}
