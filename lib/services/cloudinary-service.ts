@@ -58,7 +58,6 @@ class CloudinaryService {
     file: File, 
     options: {
       folder?: string
-      transformation?: string
       publicId?: string
       tags?: string[]
     } = {}
@@ -78,12 +77,6 @@ class CloudinaryService {
     
     if (options.folder) {
       formData.append('folder', options.folder)
-    
-    }
-    
-    if (options.transformation) {
-      formData.append('transformation', options.transformation)
-     
     }
     
     if (options.publicId) {
@@ -208,7 +201,6 @@ class CloudinaryService {
     files: File[],
     options: {
       folder?: string
-      transformation?: string
       tags?: string[]
       publicId?: string
     } = {}

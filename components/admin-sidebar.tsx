@@ -10,7 +10,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  Tag
 } from "lucide-react"
 import { useState } from "react"
 import { logout } from "@/lib/firebase-auth"
@@ -41,6 +42,12 @@ export function AdminSidebar() {
       href: "/admin/news",
       icon: Newspaper,
       description: "Quản lý bài viết tin tức"
+    },
+    {
+      title: "Quản lý Thương hiệu",
+      href: "/admin/brands",
+      icon: Tag,
+      description: "Quản lý thương hiệu và nhãn hiệu"
     },
     {
       title: "Quản lý Người dùng",

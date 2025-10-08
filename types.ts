@@ -1,9 +1,3 @@
-// Centralized TypeScript interfaces for VINAGROUP Website
-// This file contains all shared interfaces to ensure consistency across the application
-
-// ============================================================================
-// NEWS & CONTENT INTERFACES
-// ============================================================================
 
 export interface NewsArticle {
   id: string
@@ -55,6 +49,22 @@ export interface NewsPost {
   createdAt?: Date
   updatedAt?: Date
   seoScore: number
+}
+
+export interface Brand {
+  id: string
+  name: string
+  image: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface BrandPost {
+  id?: string
+  name: string
+  image: string
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface NewsComment {
