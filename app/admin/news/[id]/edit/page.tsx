@@ -120,30 +120,25 @@ export default function EditNewsPage() {
   // Track if user has manually edited meta fields
   const [isMetaDescriptionManuallyEdited, setIsMetaDescriptionManuallyEdited] = useState(false)
   const [isMetaTitleManuallyEdited, setIsMetaTitleManuallyEdited] = useState(false)
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
 
   // Update author when user changes
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
-
-
         // Use helper function to get display name from Firestore
         const displayName = await getUserDisplayName(user.uid)
-
         setPost(prev => ({
           ...prev,
           author: displayName
         }))
-
       } else {
-
         setPost(prev => ({
           ...prev,
           author: "Admin User"
         }))
       }
     }
-
     fetchUserData()
   }, [user])
 
@@ -152,10 +147,8 @@ export default function EditNewsPage() {
     const loadArticle = async () => {
       try {
         setLoading(true)
-
         const article = await getPost(articleId)
         if (article) {
-
           // Convert NewsArticle to NewsPost format
           const postData: NewsPost = {
             title: article.title,
@@ -253,6 +246,23 @@ export default function EditNewsPage() {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim()
+  }
+
+  // Helpers for SEO field auto-generation
+  const stripHtmlToText = (html: string): string => {
+    const doc = new DOMParser().parseFromString(html, 'text/html')
+    return (doc.body.textContent || '').replace(/\s+/g, ' ').trim()
+  }
+
+  const truncateToLength = (text: string, maxLen: number): string => {
+    if (text.length <= maxLen) return text
+    // Try to cut at last space before limit to avoid mid-word cuts
+    const sliced = text.slice(0, maxLen)
+    const lastSpace = sliced.lastIndexOf(' ')
+    if (lastSpace > 40) {
+      return sliced.slice(0, lastSpace).trim()
+    }
+    return sliced.trim()
   }
 
   const handleSaveDraft = async () => {
@@ -411,6 +421,34 @@ export default function EditNewsPage() {
     })
   }
 
+  // Auto-sync Meta Title from Title if not manually edited
+  useEffect(() => {
+    if (isMetaTitleManuallyEdited) return
+    const suggestedTitle = truncateToLength(post.title || '', 60)
+    if (suggestedTitle !== post.metaTitle) {
+      setPost(prev => ({ ...prev, metaTitle: suggestedTitle }))
+    }
+  }, [post.title, isMetaTitleManuallyEdited])
+
+  // Auto-sync Meta Description from Excerpt or Content if not manually edited
+  useEffect(() => {
+    if (isMetaDescriptionManuallyEdited) return
+    const baseText = (post.excerpt || '').trim()
+    const suggestedDesc = truncateToLength(baseText, 160)
+    if (suggestedDesc !== post.metaDescription) {
+      setPost(prev => ({ ...prev, metaDescription: suggestedDesc }))
+    }
+  }, [post.excerpt, isMetaDescriptionManuallyEdited])
+
+  // Auto-generate slug from title unless manually edited
+  useEffect(() => {
+    if (isSlugManuallyEdited) return
+    const suggestedSlug = generateSlug(post.title || '')
+    if (suggestedSlug && suggestedSlug !== post.slug) {
+      setPost(prev => ({ ...prev, slug: suggestedSlug }))
+    }
+  }, [post.title, isSlugManuallyEdited])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
@@ -511,7 +549,11 @@ export default function EditNewsPage() {
                   id="slug"
                   ref={slugInputRef}
                   value={post.slug}
-                  onChange={(e) => setPost(prev => ({ ...prev, slug: e.target.value }))}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setPost(prev => ({ ...prev, slug: value }))
+                    setIsSlugManuallyEdited(value.trim().length > 0)
+                  }}
                   placeholder="tieu-de-bai-viet"
                   className="mt-1"
                 />

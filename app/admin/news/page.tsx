@@ -167,21 +167,18 @@ export default function NewsManagement() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${article.category === "su-kien"
-                            ? "bg-primary/10 text-primary"
-                            : "bg-secondary/10 text-secondary"
+                          ? "bg-primary/10 text-primary"
+                          : "bg-secondary/10 text-secondary"
                           }`}>
                           {article.category === "su-kien" ? "Sự kiện" :
                             article.category === "tin-tuc" ? "Tin tức" :
-                              article.category === "cong-nghe" ? "Công nghệ" :
-                                article.category === "san-pham" ? "Sản phẩm" :
-                                  article.category === "tuyen-dung" ? "Tuyển dụng" :
                                     article.category || "Chưa phân loại"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${article.status === "published"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
                           }`}>
                           {article.status === "published" ? "Đã xuất bản" : "Bản nháp"}
                         </span>
