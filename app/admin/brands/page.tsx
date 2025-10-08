@@ -138,7 +138,7 @@ export default function BrandManagement() {
                             <img
                               src={brand.image}
                               alt={brand.name}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-contain"
                             />
                           ) : (
                             <div className="h-full w-full bg-gray-200 flex items-center justify-center">

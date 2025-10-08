@@ -188,7 +188,7 @@ export default function NewsPage() {
                   <img
                     src={news.featuredImage?.url || "/placeholder.svg"}
                     alt={news.featuredImage?.alt || news.title}
-                    className="w-full h-48 sm:h-56 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-48 sm:h-56 object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
                 

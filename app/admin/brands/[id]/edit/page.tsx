@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,7 +16,7 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react"
-import { ImageUpload } from "../../../../../components/image-upload"
+import { ImageUpload, ImageUploadRef } from "../../../../../components/image-upload"
 import { useBrands } from "@/hooks/use-brands"
 import { BrandPost } from "@/types"
 import { useToast } from "@/hooks/use-toast"
@@ -39,6 +39,7 @@ export default function EditBrandPage() {
   const brandId = params.id as string
   const { updateBrand, isUpdating, deleteBrand, isDeleting, getBrand } = useBrands()
   const { toast } = useToast()
+  const imageUploadRef = useRef<ImageUploadRef>(null)
 
   const [brand, setBrand] = useState<BrandPost>({
     name: "",
@@ -124,7 +125,15 @@ export default function EditBrandPage() {
     }
 
     try {
-      await updateBrand(brandId, brand)
+      // Upload image to Cloudinary if there's a temporary file
+      let brandToSave = { ...brand }
+      if (imageUploadRef.current?.hasTemporaryFile()) {
+        const permanentImageUrl = await imageUploadRef.current.uploadToCloudinary()
+        brandToSave = { ...brand, image: permanentImageUrl }
+        setBrand(brandToSave)
+      }
+
+      await updateBrand(brandId, brandToSave)
 
       toast({
         title: "Cập nhật thương hiệu thành công!",
@@ -237,7 +246,7 @@ export default function EditBrandPage() {
                             <img
                               src={brand.image}
                               alt={brand.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain"
                             />
                           ) : (
                             <Tag className="h-5 w-5 text-gray-400" />
@@ -303,6 +312,7 @@ export default function EditBrandPage() {
               <div className="max-w-md mx-auto w-full space-y-4">
                 <div className="space-y-3">
                   <ImageUpload
+                    ref={imageUploadRef}
                     value={brand.image}
                     onChange={(url: string) => {
                       setBrand(prev => ({ ...prev, image: url }))

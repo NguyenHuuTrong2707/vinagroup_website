@@ -24,7 +24,7 @@ import {
   Loader2
 } from "lucide-react"
 import { RichTextEditor } from "../../../../components/rich-text-editor"
-import { ImageUpload } from "../../../../components/image-upload"
+import { ImageUpload, ImageUploadRef } from "../../../../components/image-upload"
 import { SEOPreview } from "../../../../components/seo-preview"
 import { LivePreview } from "../../../../components/live-preview"
 import { useNews } from "@/hooks/use-news"
@@ -153,6 +153,7 @@ export default function NewNewsPage() {
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop")
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const slugInputRef = useRef<HTMLInputElement>(null)
+  const imageUploadRef = useRef<ImageUploadRef>(null)
 
   // Track if user has manually edited meta fields
   const [isMetaDescriptionManuallyEdited, setIsMetaDescriptionManuallyEdited] = useState(false)
@@ -399,10 +400,18 @@ export default function NewNewsPage() {
     })
 
     try {
+      // Upload image to Cloudinary if there's a temporary file
+      let updatedPost = { ...post }
+      if (imageUploadRef.current?.hasTemporaryFile()) {
+        const permanentImageUrl = await imageUploadRef.current.uploadToCloudinary()
+        updatedPost = { ...post, featuredImage: permanentImageUrl }
+        setPost(updatedPost)
+      }
+
       const postToSave = {
-        ...post,
+        ...updatedPost,
         status: "draft" as const,
-        slug: post.slug || generateSlug(post.title)
+        slug: updatedPost.slug || generateSlug(updatedPost.title)
       }
 
       console.log('📋 Post data prepared for save:', {
@@ -463,10 +472,18 @@ export default function NewNewsPage() {
     })
 
     try {
+      // Upload image to Cloudinary if there's a temporary file
+      let updatedPost = { ...post }
+      if (imageUploadRef.current?.hasTemporaryFile()) {
+        const permanentImageUrl = await imageUploadRef.current.uploadToCloudinary()
+        updatedPost = { ...post, featuredImage: permanentImageUrl }
+        setPost(updatedPost)
+      }
+
       const postToSave = {
-        ...post,
+        ...updatedPost,
         status: "published" as const,
-        slug: post.slug || generateSlug(post.title)
+        slug: updatedPost.slug || generateSlug(updatedPost.title)
       }
 
       console.log('📋 Post data prepared for publish:', {
@@ -720,6 +737,7 @@ export default function NewNewsPage() {
               <div>
                 <Label>Hình ảnh đại diện</Label>
                 <ImageUpload
+                  ref={imageUploadRef}
                   value={post.featuredImage}
                   onChange={(url) => setPost(prev => ({ ...prev, featuredImage: url }))}
                   aspectRatio="16:9"

@@ -24,7 +24,7 @@ import {
   Loader2
 } from "lucide-react"
 import { RichTextEditor } from "../../../../../components/rich-text-editor"
-import { ImageUpload } from "../../../../../components/image-upload"
+import { ImageUpload, ImageUploadRef } from "../../../../../components/image-upload"
 import { SEOPreview } from "../../../../../components/seo-preview"
 import { LivePreview } from "../../../../../components/live-preview"
 import { useNews } from "@/hooks/use-news"
@@ -115,6 +115,7 @@ export default function EditNewsPage() {
   const [loading, setLoading] = useState(true)
   const slugInputRef = useRef<HTMLInputElement>(null)
   const hasRestoredFromLocalRef = useRef(false)
+  const imageUploadRef = useRef<ImageUploadRef>(null)
 
   // Track if user has manually edited meta fields
   const [isMetaDescriptionManuallyEdited, setIsMetaDescriptionManuallyEdited] = useState(false)
@@ -256,13 +257,19 @@ export default function EditNewsPage() {
 
   const handleSaveDraft = async () => {
     try {
-      const postToSave = {
-        ...post,
-        status: "draft" as const,
-        slug: post.slug || generateSlug(post.title)
+      // Upload image to Cloudinary if there's a temporary file
+      let updatedPost = { ...post }
+      if (imageUploadRef.current?.hasTemporaryFile()) {
+        const permanentImageUrl = await imageUploadRef.current.uploadToCloudinary()
+        updatedPost = { ...post, featuredImage: permanentImageUrl }
+        setPost(updatedPost)
       }
 
-
+      const postToSave = {
+        ...updatedPost,
+        status: "draft" as const,
+        slug: updatedPost.slug || generateSlug(updatedPost.title)
+      }
 
       await updatePost(articleId, postToSave, selectedImageFile || undefined)
 
@@ -280,10 +287,18 @@ export default function EditNewsPage() {
   }
   const handlePublish = async () => {
     try {
+      // Upload image to Cloudinary if there's a temporary file
+      let updatedPost = { ...post }
+      if (imageUploadRef.current?.hasTemporaryFile()) {
+        const permanentImageUrl = await imageUploadRef.current.uploadToCloudinary()
+        updatedPost = { ...post, featuredImage: permanentImageUrl }
+        setPost(updatedPost)
+      }
+
       const postToSave = {
-        ...post,
+        ...updatedPost,
         status: "published" as const,
-        slug: post.slug || generateSlug(post.title)
+        slug: updatedPost.slug || generateSlug(updatedPost.title)
       }
       await updatePost(articleId, postToSave, selectedImageFile || undefined)
       toast({
@@ -536,6 +551,7 @@ export default function EditNewsPage() {
               <div>
                 <Label>Hình ảnh đại diện</Label>
                 <ImageUpload
+                  ref={imageUploadRef}
                   value={post.featuredImage}
                   onChange={(url) => setPost(prev => ({ ...prev, featuredImage: url }))}
                   aspectRatio="16:9"

@@ -143,7 +143,7 @@ export default function NewsDetail({ params }: NewsDetailProps) {
               <img
                 src={article.featuredImage?.url || "/placeholder.svg"}
                 alt={article.featuredImage?.alt || article.title}
-                className="w-full h-[400px] md:h-[500px] object-cover rounded-lg shadow-lg"
+                className="w-full h-[400px] md:h-[500px] object-contain rounded-lg shadow-lg"
               />
             </div>
 
@@ -181,7 +181,7 @@ export default function NewsDetail({ params }: NewsDetailProps) {
                           <img
                             src={news.featuredImage?.url || "/placeholder.svg"}
                             alt={news.featuredImage?.alt || news.title}
-                            className="w-20 h-20 object-cover rounded-lg"
+                            className="w-20 h-20 object-contain rounded-lg"
                           />
                         </div>
                         <div className="flex-1 min-w-0">

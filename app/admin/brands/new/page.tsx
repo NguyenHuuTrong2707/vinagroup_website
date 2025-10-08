@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,7 @@ import {
     CheckCircle,
     AlertCircle
 } from "lucide-react"
-import { ImageUpload } from "../../../../components/image-upload"
+import { ImageUpload, ImageUploadRef } from "../../../../components/image-upload"
 import { useBrands } from "@/hooks/use-brands"
 import { BrandPost } from "@/types" 
 import { useToast } from "@/hooks/use-toast"
@@ -25,6 +25,7 @@ export default function NewBrandPage() {
     const router = useRouter()
     const { createBrand, isCreating } = useBrands()
     const { toast } = useToast()
+    const imageUploadRef = useRef<ImageUploadRef>(null)
 
     const [brand, setBrand] = useState<BrandPost>({
         name: "",
@@ -68,7 +69,15 @@ export default function NewBrandPage() {
         }
 
         try {
-            const id = await createBrand(brand)
+            // Upload image to Cloudinary if there's a temporary file
+            let brandToSave = { ...brand }
+            if (imageUploadRef.current?.hasTemporaryFile()) {
+                const permanentImageUrl = await imageUploadRef.current.uploadToCloudinary()
+                brandToSave = { ...brand, image: permanentImageUrl }
+                setBrand(brandToSave)
+            }
+
+            const id = await createBrand(brandToSave)
 
             // Redirect to brands list
             router.push('/admin/brands')
@@ -163,7 +172,7 @@ export default function NewBrandPage() {
                                                         <img
                                                             src={brand.image}
                                                             alt={brand.name}
-                                                            className="w-full h-full object-cover"
+                                                            className="w-full h-full object-contain"
                                                         />
                                                     ) : (
                                                         <Tag className="h-5 w-5 text-gray-400" />
@@ -228,6 +237,7 @@ export default function NewBrandPage() {
                             <div className="max-w-md mx-auto w-full space-y-4">
                                 <div className="space-y-3">
                                     <ImageUpload
+                                        ref={imageUploadRef}
                                         value={brand.image}
                                         onChange={(url: string) => {
                                             setBrand(prev => ({ ...prev, image: url }))

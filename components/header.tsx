@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { useState } from "react"
+import { useActiveBrands } from "@/hooks/use-brands"
+import { Brand } from "@/types"
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -17,6 +19,7 @@ export function Header() {
   const [showPassword, setShowPassword] = useState(false)
   const [phoneError, setPhoneError] = useState('')
   const pathname = usePathname()
+  const { brands, loading: brandsLoading } = useActiveBrands(10)
 
   const baseNavLinkClass = "text-foreground hover:text-primary transition-colors typo-menu"
   const baseMobileLinkClass = "text-foreground hover:text-primary transition-colors py-2 text-base"
@@ -83,17 +86,37 @@ export function Header() {
               >
                 Products
               </Link>
-              <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 min-w-[220px] z-50">
-                <div className="py-2">
-                  <Link href="/products?category=thuong-hieu-1" className="block px-4 py-2 text-sm hover:bg-accent">
-                    Brand 1
-                  </Link>
-                  <Link href="/products?category=thuong-hieu-2" className="block px-4 py-2 text-sm hover:bg-accent">
-                    Brand 2
-                  </Link>
-                  <Link href="/products?category=thuong-hieu-3" className="block px-4 py-2 text-sm hover:bg-accent">
-                    Brand 3
-                  </Link>
+              <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg 
+                opacity-0 invisible group-hover:opacity-100 group-hover:visible 
+                transition-all duration-200 w-[600px] z-50">
+                <div className="p-6">
+                  {brandsLoading ? (
+                    <div className="text-center py-4 text-sm text-muted-foreground">Loading brands...</div>
+                  ) : brands.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-6">
+                      {brands.map((brand) => (
+                        <Link
+                          key={brand.id}
+                          href={`/products?category=${encodeURIComponent(
+                            brand.name.toLowerCase().replace(/\s+/g, '-')
+                          )}`}
+                          className="group/brand flex justify-center items-center hover:bg-primary/5 transition-colors rounded-lg p-3"
+                        >
+                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 flex items-center justify-center">
+                            <Image
+                              src={brand.image}
+                              alt={brand.name}
+                              fill
+                              className="object-contain transition-transform duration-300 group-hover/brand:scale-105"
+                              title={brand.name}
+                            />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-sm text-muted-foreground">No brands available</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -397,28 +420,38 @@ export function Header() {
                   <span className="text-xs text-muted-foreground">{isMobileProductsOpen ? "−" : "+"}</span>
                 </button>
                 {isMobileProductsOpen && (
-                  <div id="mobile-products-submenu" className="pl-4 border-l border-border space-y-2 py-2">
-                    <Link
-                      href="/products?category=lop-xe-tai"
-                      className={`block text-foreground hover:text-primary transition-colors text-sm${isActive("/products?category=lop-xe-tai") ? " underline" : ""}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Brand 1
-                    </Link>
-                    <Link
-                      href="/products?category=lop-xe-du-lich"
-                      className={`block text-foreground hover:text-primary transition-colors text-sm${isActive("/products?category=lop-xe-du-lich") ? " underline" : ""}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Brand 2
-                    </Link>
-                    <Link
-                      href="/products?category=lop-dia-hinh"
-                      className={`block text-foreground hover:text-primary transition-colors text-sm${isActive("/products?category=lop-dia-hinh") ? " underline" : ""}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Brand 3
-                    </Link>
+                  <div id="mobile-products-submenu" className="pl-4 border-l border-border py-2">
+                    {brandsLoading ? (
+                      <div className="text-sm text-muted-foreground">Loading brands...</div>
+                    ) : brands.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-2">
+                        {brands.map((brand) => (
+                          <Link
+                            key={brand.id}
+                            href={`/products?category=${encodeURIComponent(brand.name.toLowerCase().replace(/\s+/g, '-'))}`}
+                            className={`group/brand flex justify-center items-center p-2 hover:bg-accent rounded-lg transition-colors${isActive(`/products?category=${encodeURIComponent(brand.name.toLowerCase().replace(/\s+/g, '-'))}`) ? " bg-accent" : ""}`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <div className="relative">
+                              <Image
+                                src={brand.image}
+                                alt={brand.name}
+                                width={32}
+                                height={32}
+                                className="w-8 h-8 object-contain"
+                                title={brand.name}
+                              />
+                              {/* Tooltip for mobile */}
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/brand:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                {brand.name}
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">No brands available</div>
+                    )}
                   </div>
                 )}
               </div>

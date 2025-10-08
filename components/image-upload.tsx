@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from "react"
 import { Button } from "@/components/ui/button"
 import { Upload, X, Image as ImageIcon, Loader2, Crop } from "lucide-react"
 import { cloudinaryService } from "@/lib/services/cloudinary-service"
@@ -22,15 +22,24 @@ interface ImageUploadProps {
   aspectRatio?: "16:9" | "4:3" | "1:1"
   className?: string
   folder?: string
+  onSave?: (file: File, tempUrl: string) => Promise<string>
+  isTemporary?: boolean
 }
 
-export function ImageUpload({
+export interface ImageUploadRef {
+  uploadToCloudinary: () => Promise<string>
+  hasTemporaryFile: () => boolean
+}
+
+export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   value,
   onChange,
   aspectRatio = "16:9",
   className,
-  folder = "vinagroup/uploads"
-}: ImageUploadProps) {
+  folder = "vinagroup/uploads",
+  onSave,
+  isTemporary = false
+}, ref) => {
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -40,8 +49,21 @@ export function ImageUpload({
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
   const [isCropping, setIsCropping] = useState(false)
+  const [tempFile, setTempFile] = useState<File | null>(null)
+  const [tempUrl, setTempUrl] = useState<string>("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+
+
+  // Create temporary URL for file preview
+  const createTempUrl = (file: File): string => {
+    return URL.createObjectURL(file)
+  }
+
+  // Clean up temporary URL
+  const revokeTempUrl = (url: string) => {
+    URL.revokeObjectURL(url)
+  }
 
   // Check if Cloudinary is properly configured
   const isCloudinaryConfigured = () => {
@@ -68,52 +90,48 @@ export function ImageUpload({
 
   const handleFileUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Lỗi định dạng file",
+        description: "Vui lòng chọn file hình ảnh hợp lệ.",
+        variant: "destructive",
+      })
       return
     }
 
     // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File quá lớn",
+        description: "Kích thước file không được vượt quá 10MB.",
+        variant: "destructive",
+      })
       return
     }
 
-    setIsUploading(true)
-    setUploadProgress(0)
-
     try {
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval)
-            return 90
-          }
-          return prev + 10
-        })
-      }, 200)
+      // Clean up previous temporary URL if exists
+      if (tempUrl) {
+        revokeTempUrl(tempUrl)
+      }
 
-      // Upload to Cloudinary (without transformation to avoid upload errors)
-      const result = await cloudinaryService.uploadImage(file, {
-        folder,
-        tags: ['vinagroup', 'upload']
-      })
+      // Create temporary URL for immediate preview
+      const newTempUrl = createTempUrl(file)
 
-      clearInterval(progressInterval)
-      setUploadProgress(100)
+      // Store file and temporary URL
+      setTempFile(file)
+      setTempUrl(newTempUrl)
 
-      // Use the direct Cloudinary URL without transformations
-
-      // Use the direct secure URL from Cloudinary
-      onChange(result.secure_url)
-
-
+      // Update the component with temporary URL
+      onChange(newTempUrl)
     } catch (error) {
-      console.error('Upload error:', error)
-    } finally {
-      setIsUploading(false)
-      setUploadProgress(0)
+      console.error('File processing error:', error)
+      toast({
+        title: "Lỗi xử lý file",
+        description: "Có lỗi xảy ra khi xử lý file hình ảnh.",
+        variant: "destructive",
+      })
     }
   }
-
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -141,9 +159,93 @@ export function ImageUpload({
   }
 
   const removeImage = () => {
+    // Clean up temporary URL if exists
+    if (tempUrl) {
+      revokeTempUrl(tempUrl)
+    }
+
     onChange("")
     setOriginalImageUrl("")
+    setTempFile(null)
+    setTempUrl("")
   }
+
+  // Function to upload to Cloudinary (called on save)
+  const uploadToCloudinary = useCallback(async (): Promise<string> => {
+    // If no temp file, check if current value is a temporary URL
+    if (!tempFile && !value.startsWith('blob:')) {
+      throw new Error('No file to upload - image may already be uploaded')
+    }
+
+    // If current value is already a Cloudinary URL, return it
+    if (value.includes('cloudinary.com') || value.includes('res.cloudinary.com')) {
+      return value
+    }
+
+    if (!tempFile) {
+      throw new Error('No file to upload')
+    }
+
+    setIsUploading(true)
+    setUploadProgress(0)
+
+    try {
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return 90
+          }
+          return prev + 10
+        })
+      }, 200)
+
+      // Upload to Cloudinary
+      const result = await cloudinaryService.uploadImage(tempFile, {
+        folder,
+        tags: ['vinagroup', 'upload']
+      })
+
+      clearInterval(progressInterval)
+      setUploadProgress(100)
+
+      // Clean up temporary URL
+      if (tempUrl) {
+        revokeTempUrl(tempUrl)
+      }
+
+      // Update with permanent Cloudinary URL
+      onChange(result.secure_url)
+      setTempFile(null)
+      setTempUrl("")
+
+      return result.secure_url
+
+    } catch (error) {
+      console.error('Upload error:', error)
+      throw error
+    } finally {
+      setIsUploading(false)
+      setUploadProgress(0)
+    }
+  }, [tempFile, tempUrl, folder, onChange, value])
+
+  // Expose upload function to parent component
+  useImperativeHandle(ref, () => ({
+    uploadToCloudinary: async () => {
+      try {
+        return await uploadToCloudinary()
+      } catch (error) {
+        console.error('Save upload failed:', error)
+        throw error
+      }
+    },
+    hasTemporaryFile: () => {
+      // Check if there's a temporary file or if current value is a temporary URL
+      return !!tempFile || (!!value && value.startsWith('blob:') && !value.includes('cloudinary.com'))
+    }
+  }), [tempFile, uploadToCloudinary, value])
 
   // Get aspect ratio for crop
   const getCropAspectRatio = () => {
@@ -287,8 +389,15 @@ export function ImageUpload({
         folder: folder
       })
 
+      // Clean up temporary URL and file
+      if (tempUrl) {
+        revokeTempUrl(tempUrl)
+      }
+
       // Update the image with cropped version
       onChange(uploadResult.secure_url)
+      setTempFile(null)
+      setTempUrl("")
       setIsCropDialogOpen(false)
 
       toast({
@@ -335,7 +444,7 @@ export function ImageUpload({
             <img
               src={value}
               alt="Uploaded image"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               loading="lazy"
               decoding="async"
               onError={(e) => {
@@ -388,27 +497,27 @@ export function ImageUpload({
                   onCropComplete={onCropComplete}
                   onZoomChange={setZoom}
                   showGrid={true}
-                  minZoom={0.4}
+                  minZoom={0.1}
                   maxZoom={3}
                   restrictPosition={false}
-                    style={{
-                      containerStyle: {
-                        width: '100%',
-                        height: '100%',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        backgroundColor: 'transparent',
-                      },
-                      mediaStyle: {
-                        maxWidth: '100%',
-                        maxHeight: '100%',
-                        objectFit: 'contain',
-                      },
-                      cropAreaStyle: {
-                        background: 'rgba(0, 0, 0, 0.4)',
-                      },
-                      
-                    }}
+                  style={{
+                    containerStyle: {
+                      width: '100%',
+                      height: '100%',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      backgroundColor: 'transparent',
+                    },
+                    mediaStyle: {
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'contain',
+                    },
+                    cropAreaStyle: {
+                      background: 'rgba(0, 0, 0, 0.4)',
+                    },
+
+                  }}
                 />
               </div>
 
@@ -509,6 +618,6 @@ export function ImageUpload({
       )}
     </div>
   )
-}
+})
 
-
+ImageUpload.displayName = "ImageUpload"

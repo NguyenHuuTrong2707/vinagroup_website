@@ -132,7 +132,7 @@ export function News() {
                   <img
                     src={event.featuredImage?.url || "/placeholder.svg"}
                     alt={event.featuredImage?.alt || event.title}
-                    className="w-full h-48 sm:h-56 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-48 sm:h-56 object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
                 
