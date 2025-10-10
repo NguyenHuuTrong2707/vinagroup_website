@@ -8,19 +8,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Save, 
-  Eye, 
-  Upload, 
-  Calendar,
-  User,
-  Globe,
+import {
+  Save,
+  Eye,
   Smartphone,
   Monitor,
   Tablet,
-  AlertCircle,
   CheckCircle,
-  Clock,
   Loader2
 } from "lucide-react"
 import { RichTextEditor } from "../../../../components/rich-text-editor"
@@ -29,7 +23,7 @@ import { SEOPreview } from "../../../../components/seo-preview"
 import { LivePreview } from "../../../../components/live-preview"
 import { useNews } from "@/hooks/use-news"
 import { useAutosave } from "@/hooks/use-autosave"
-import { AutosaveStatus, KeyboardShortcuts } from "@/components/autosave-status"
+import { AutosaveStatus } from "@/components/autosave-status"
 import { NewsPost } from "@/types"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/firebase-auth"
@@ -46,14 +40,11 @@ export default function NewNewsPage() {
   const getUserDisplayName = async (uid: string): Promise<string> => {
     try {
       const userDoc = await getDocument('users', uid)
-      console.log('📋 User document from Firestore:', userDoc)
-      
+
       if (userDoc?.displayName) {
-        console.log('✅ Found displayName in Firestore:', userDoc.displayName)
         return userDoc.displayName
       }
-      
-      console.log('⚠️ No displayName in Firestore, using fallback')
+
       return "Admin User"
     } catch (error) {
       console.error('❌ Error fetching user display name:', error)
@@ -63,8 +54,8 @@ export default function NewNewsPage() {
 
   // Track if we have a saved draft ID
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null)
-  
-  
+
+
   // Autosave functionality
   const autosaveKey = `news_${Date.now()}`
   const {
@@ -79,25 +70,10 @@ export default function NewNewsPage() {
     key: autosaveKey,
     interval: 2000, // 2 seconds
     onSave: async (data) => {
-      console.log('🔄 Autosave triggered:', {
-        timestamp: new Date().toISOString(),
-        hasTitle: !!data.title,
-        hasContent: !!data.content,
-        savedDraftId: savedDraftId,
-        dataPreview: {
-          title: data.title?.substring(0, 50) + '...',
-          contentLength: data.content?.length || 0,
-          status: data.status,
-          keywords: data.keywords,
-          keywordsLength: data.keywords?.length || 0
-        }
-      })
-
-      // Check if there's meaningful content to save
+      //Check if there's meaningful content to save
       const hasContent = data.title?.trim() || data.content?.trim() || data.excerpt?.trim()
-      
+
       if (!hasContent) {
-        console.log('⏭️ Skipping autosave - no content to save')
         return
       }
 
@@ -107,21 +83,15 @@ export default function NewNewsPage() {
         status: "draft" as const,
         slug: data.slug || generateSlug(data.title)
       }
-      
+
       try {
         if (savedDraftId) {
           // Update existing draft
-          console.log('📝 Updating existing draft:', savedDraftId)
-          console.log('🖼️ Featured image URL:', data.featuredImage)
           await updatePost(savedDraftId, postToSave, selectedImageFile || undefined)
-          console.log('✅ Draft updated successfully:', savedDraftId)
         } else {
           // Create new draft only if there's content
-          console.log('🆕 Creating new draft (content detected)...')
-          console.log('🖼️ Featured image URL:', data.featuredImage)
           const id = await createPost(postToSave, selectedImageFile || undefined)
           setSavedDraftId(id)
-          console.log('✅ New draft created successfully:', id)
         }
       } catch (error) {
         console.error('❌ Autosave failed:', error)
@@ -133,7 +103,7 @@ export default function NewNewsPage() {
       // Don't show toast for autosave errors - just log them
     }
   })
-  
+
   const [post, setPost] = useState<NewsPost>({
     title: "",
     slug: "",
@@ -164,25 +134,19 @@ export default function NewNewsPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
-        console.log('🔍 Fetching user data for UID:', user.uid)
-        console.log('👤 Firebase Auth user object:', {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          emailVerified: user.emailVerified
-        })
-        
+
+
         // Use helper function to get display name from Firestore
         const displayName = await getUserDisplayName(user.uid)
-        
+
         setPost(prev => ({
           ...prev,
           author: displayName
         }))
-        
-        console.log('✅ Author set to:', displayName)
+
+
       } else {
-        console.log('❌ No user found, setting default author')
+
         setPost(prev => ({
           ...prev,
           author: "Admin User"
@@ -202,36 +166,10 @@ export default function NewNewsPage() {
   useEffect(() => {
     const savedData = loadFromLocalStorage()
     if (savedData) {
-      console.log('📂 Restoring draft from localStorage:', {
-        title: savedData.title?.substring(0, 50) + '...',
-        keywords: savedData.keywords,
-        keywordsLength: savedData.keywords?.length || 0
-      })
       setPost(savedData)
-      console.log('✅ Restored draft from localStorage - no toast shown')
     }
   }, [loadFromLocalStorage])
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-          case 's':
-            e.preventDefault()
-            handleSaveDraft()
-            break
-          case 'Enter':
-            e.preventDefault()
-            handlePublish()
-            break
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [])
 
   // Generate slug from title
   const generateSlug = (title: string) => {
@@ -265,13 +203,27 @@ export default function NewNewsPage() {
   }, [post])
 
   // Generate slug from title unless manually edited
+  // Generate slug from title unless manually edited
   useEffect(() => {
     if (isSlugManuallyEdited) return
-    const suggested = generateSlug(post.title || '')
-    if (suggested && suggested !== post.slug) {
+
+    const title = (post.title || '').trim()
+
+    // If title is empty, clear slug (only when not manually edited)
+    if (!title) {
+      if (post.slug !== '') {
+        setPost(prev => ({ ...prev, slug: '' }))
+      }
+      return
+    }
+
+    // Otherwise generate suggested slug and apply if different
+    const suggested = generateSlug(title)
+    if (suggested !== post.slug) {
       setPost(prev => ({ ...prev, slug: suggested }))
     }
   }, [post.title, isSlugManuallyEdited])
+
 
   // Generate meta title from title (only if not manually edited)
   useEffect(() => {
@@ -363,20 +315,6 @@ export default function NewNewsPage() {
   }
 
   const handleSaveDraft = async () => {
-    console.log('💾 Manual draft save triggered:', {
-      timestamp: new Date().toISOString(),
-      hasTitle: !!post.title,
-      hasContent: !!post.content,
-      savedDraftId: savedDraftId,
-      postPreview: {
-        title: post.title?.substring(0, 50) + '...',
-        contentLength: post.content?.length || 0,
-        status: post.status,
-        slug: post.slug,
-        keywords: post.keywords.length
-      }
-    })
-
     try {
       // Upload image to Cloudinary if there's a temporary file
       let updatedPost = { ...post }
@@ -391,21 +329,10 @@ export default function NewNewsPage() {
         status: "draft" as const,
         slug: updatedPost.slug || generateSlug(updatedPost.title)
       }
-
-      console.log('📋 Post data prepared for save:', {
-        title: postToSave.title?.substring(0, 50) + '...',
-        slug: postToSave.slug,
-        status: postToSave.status,
-        hasImage: !!selectedImageFile,
-        featuredImageUrl: postToSave.featuredImage
-      })
-
       if (savedDraftId) {
         // Update existing draft
-        console.log('📝 Updating existing draft via manual save:', savedDraftId)
         await updatePost(savedDraftId, postToSave, selectedImageFile || undefined)
-        console.log('✅ Manual draft update successful:', savedDraftId)
-        
+
         toast({
           title: "Cập nhật bản nháp thành công!",
           description: "Bản nháp đã được cập nhật.",
@@ -413,42 +340,24 @@ export default function NewNewsPage() {
         })
       } else {
         // Create new draft
-        console.log('🆕 Creating new draft via manual save...')
         const id = await createPost(postToSave, selectedImageFile || undefined)
         setSavedDraftId(id)
-        console.log('✅ Manual draft creation successful:', id)
-        
+
         toast({
           title: "Lưu bản nháp thành công!",
           description: "Bài viết đã được lưu dưới dạng bản nháp.",
           variant: "default",
         })
       }
-      
-      console.log('🗑️ Clearing localStorage after successful save')
+
       clearLocalStorage() // Clear localStorage after successful save
-      
-      console.log('✅ Draft save completed - staying on current page')
+
     } catch (error) {
       console.error("❌ Manual draft save failed:", error)
-      console.log('❌ Draft save failed - no toast shown')
     }
   }
 
   const handlePublish = async () => {
-    console.log('🚀 Publish triggered:', {
-      timestamp: new Date().toISOString(),
-      hasTitle: !!post.title,
-      hasContent: !!post.content,
-      savedDraftId: savedDraftId,
-      postPreview: {
-        title: post.title?.substring(0, 50) + '...',
-        contentLength: post.content?.length || 0,
-        status: post.status,
-        slug: post.slug
-      }
-    })
-
     try {
       // Upload image to Cloudinary if there's a temporary file
       let updatedPost = { ...post }
@@ -463,20 +372,10 @@ export default function NewNewsPage() {
         status: "published" as const,
         slug: updatedPost.slug || generateSlug(updatedPost.title)
       }
-
-      console.log('📋 Post data prepared for publish:', {
-        title: postToSave.title?.substring(0, 50) + '...',
-        slug: postToSave.slug,
-        status: postToSave.status,
-        hasImage: !!selectedImageFile
-      })
-
       if (savedDraftId) {
         // Update existing draft to published
-        console.log('📝 Publishing existing draft:', savedDraftId)
         await updatePost(savedDraftId, postToSave, selectedImageFile || undefined)
-        console.log('✅ Draft published successfully:', savedDraftId)
-        
+
         toast({
           title: "Xuất bản thành công!",
           description: "Bản nháp đã được xuất bản thành công.",
@@ -484,26 +383,20 @@ export default function NewNewsPage() {
         })
       } else {
         // Create new published article
-        console.log('🆕 Creating new published article...')
         const id = await createPost(postToSave, selectedImageFile || undefined)
         setSavedDraftId(id)
-        console.log('✅ New article published successfully:', id)
-        
+
         toast({
           title: "Xuất bản thành công!",
           description: "Bài viết đã được xuất bản và có thể xem công khai.",
           variant: "default",
         })
       }
-      
-      console.log('🗑️ Clearing localStorage after successful publish')
       clearLocalStorage() // Clear localStorage after successful publish
-      
-      console.log('🚀 Redirecting to news list after publish')
+
       router.push(`/admin/news`)
     } catch (error) {
       console.error("❌ Publish failed:", error)
-      console.log('❌ Publish failed - no toast shown')
     }
   }
 
@@ -608,17 +501,17 @@ export default function NewNewsPage() {
             )}
             {isCreating ? "Đang lưu..." : "Lưu bản nháp"}
           </Button>
-                 <Button
-                   onClick={handlePublish}
-                   disabled={isCreating || !post.title || !post.content || !post.category}
-                 >
-                   {isCreating ? (
-                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                   ) : (
-                     <CheckCircle className="h-4 w-4 mr-2" />
-                   )}
-                   Xuất bản
-                 </Button>
+          <Button
+            onClick={handlePublish}
+            disabled={isCreating || !post.title || !post.content || !post.category}
+          >
+            {isCreating ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <CheckCircle className="h-4 w-4 mr-2" />
+            )}
+            Xuất bản
+          </Button>
           {!post.category && (
             <div className="text-xs text-red-600 mt-1">
               Chọn danh mục để xuất bản
@@ -741,15 +634,6 @@ export default function NewNewsPage() {
             score={post.seoScore}
           />
 
-          {/* Keyboard Shortcuts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Phím tắt</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <KeyboardShortcuts />
-            </CardContent>
-          </Card>
 
           {/* Meta & SEO Block */}
           <Card>
@@ -892,15 +776,15 @@ export default function NewNewsPage() {
         </div>
       </div>
 
-             {/* Live Preview Modal */}
-             {isPreviewOpen && (
-               <LivePreview
-                 post={post}
-                 device={previewDevice}
-                 onClose={() => setIsPreviewOpen(false)}
-               />
-             )}
+      {/* Live Preview Modal */}
+      {isPreviewOpen && (
+        <LivePreview
+          post={post}
+          device={previewDevice}
+          onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
 
-           </div>
-         )
-       }
+    </div>
+  )
+}

@@ -49,12 +49,7 @@ export function AdminSidebar() {
       icon: Tag,
       description: "Quản lý thương hiệu và nhãn hiệu"
     },
-    {
-      title: "Quản lý Người dùng",
-      href: "/admin/users",
-      icon: Users,
-      description: "Quản lý tài khoản người dùng"
-    },
+    
     {
       title: "Quản lý Sản phẩm",
       href: "/admin/products",

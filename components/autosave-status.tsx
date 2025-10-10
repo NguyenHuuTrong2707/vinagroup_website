@@ -102,20 +102,3 @@ export function AutosaveStatus({
   )
 }
 
-// Keyboard shortcut indicator
-export function KeyboardShortcuts() {
-  return (
-    <div className="text-xs text-gray-500 space-y-1">
-      <div className="flex items-center space-x-2">
-        <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">Ctrl</kbd>
-        <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">S</kbd>
-        <span>Lưu bản nháp</span>
-      </div>
-      <div className="flex items-center space-x-2">
-        <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">Ctrl</kbd>
-        <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">Enter</kbd>
-        <span>Xuất bản</span>
-      </div>
-    </div>
-  )
-}

@@ -29,7 +29,7 @@ import { SEOPreview } from "../../../../../components/seo-preview"
 import { LivePreview } from "../../../../../components/live-preview"
 import { useNews } from "@/hooks/use-news"
 import { useAutosave } from "@/hooks/use-autosave"
-import { AutosaveStatus, KeyboardShortcuts } from "@/components/autosave-status"
+import { AutosaveStatus } from "@/components/autosave-status"
 import { NewsPost } from "@/types"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/firebase-auth"
@@ -215,26 +215,6 @@ export default function EditNewsPage() {
     }
   }, [loading, loadFromLocalStorage])
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-          case 's':
-            e.preventDefault()
-            handleSaveDraft()
-            break
-          case 'Enter':
-            e.preventDefault()
-            handlePublish()
-            break
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [])
 
   // Generate slug from title
   const generateSlug = (title: string) => {
@@ -440,14 +420,24 @@ export default function EditNewsPage() {
     }
   }, [post.excerpt, isMetaDescriptionManuallyEdited])
 
-  // Auto-generate slug from title unless manually edited
+  // Generate slug from title unless manually edited
   useEffect(() => {
     if (isSlugManuallyEdited) return
-    const suggestedSlug = generateSlug(post.title || '')
-    if (suggestedSlug && suggestedSlug !== post.slug) {
-      setPost(prev => ({ ...prev, slug: suggestedSlug }))
+    const title = (post.title || '').trim()
+    // If title is empty, clear slug (only when not manually edited)
+    if (!title) {
+      if (post.slug !== '') {
+        setPost(prev => ({ ...prev, slug: '' }))
+      }
+      return
+    }
+    // Otherwise generate suggested slug and apply if different
+    const suggested = generateSlug(title)
+    if (suggested !== post.slug) {
+      setPost(prev => ({ ...prev, slug: suggested }))
     }
   }, [post.title, isSlugManuallyEdited])
+
 
   if (loading) {
     return (
@@ -615,15 +605,6 @@ export default function EditNewsPage() {
             score={post.seoScore}
           />
 
-          {/* Keyboard Shortcuts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Phím tắt</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <KeyboardShortcuts />
-            </CardContent>
-          </Card>
 
           {/* Meta & SEO Block */}
           <Card>
