@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.viettires.com"),
   title: {
     default: "VINAGROUP - Phân Phối Lốp Xe Chất Lượng Cao",
-    template: "%s | VINAGROUP",
+    template: "%s",
   },
   description:
     "Nhà sản xuất lốp TBR và PCR chất lượng cao với mạng lưới phân phối toàn cầu và hỗ trợ 24/7.",
@@ -122,7 +122,7 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "VINAGROUP",
-            url: "https://www.haohuatire.vn/",
+            url: "https://www.viettires.com/",
             logo: "https://www.viettires.com/placeholder-logo.png",
             sameAs: [
               "https://facebook.com/viettires",
