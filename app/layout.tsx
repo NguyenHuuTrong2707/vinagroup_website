@@ -4,12 +4,12 @@ import Script from "next/script"
 import { GeistMono } from "geist/font/mono"
 import { Merriweather, Lora, Roboto, Open_Sans, Nunito, Montserrat, Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import { ChatWidget } from "@/components/chat-widget"
 import { FirebaseProvider } from "@/components/firebase-provider"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 import { Suspense } from "react"
 import { ConditionalChatWidget } from "@/components/conditional-chat-widget"
+import { PDFViewerProvider } from "@/lib/contexts/pdf-viewer-context"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.viettires.com"),
@@ -134,12 +134,14 @@ export default function RootLayout({
           })}
         </Script>
         <FirebaseProvider>
-          <Suspense>
-            {children}
-            <ConditionalChatWidget />
-            <Analytics />
-          </Suspense>
-          <Toaster />
+          <PDFViewerProvider>
+            <Suspense>
+              {children}
+              <ConditionalChatWidget />
+              <Analytics />
+            </Suspense>
+            <Toaster />
+          </PDFViewerProvider>
         </FirebaseProvider>
       </body>
     </html>

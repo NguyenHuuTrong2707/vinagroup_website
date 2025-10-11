@@ -8,10 +8,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useActiveBrands } from "@/hooks/use-brands"
 import { Brand } from "@/types"
 import { PDFViewer } from "@/components/pdf-viewer"
+import { usePDFViewer } from "@/lib/contexts/pdf-viewer-context"
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -23,6 +24,12 @@ export function Header() {
   const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false)
   const pathname = usePathname()
   const { brands, loading: brandsLoading } = useActiveBrands(10)
+  const { setIsPDFViewerOpen: setGlobalPDFViewerOpen } = usePDFViewer()
+
+  // Sync local PDF viewer state with global context
+  useEffect(() => {
+    setGlobalPDFViewerOpen(isPDFViewerOpen)
+  }, [isPDFViewerOpen, setGlobalPDFViewerOpen])
 
   const baseNavLinkClass = "text-foreground hover:text-primary transition-colors typo-menu"
   const baseMobileLinkClass = "text-foreground hover:text-primary transition-colors py-2 text-base"

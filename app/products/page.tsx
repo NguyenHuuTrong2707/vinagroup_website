@@ -3,6 +3,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { PDFViewer } from "@/components/pdf-viewer"
+import { usePDFViewer } from "@/lib/contexts/pdf-viewer-context"
 import { useActiveBrands } from "@/hooks/use-brands"
 import Image from "next/image"
 import { ChevronLeft, Loader2, Search, Eye } from "lucide-react"
@@ -17,6 +18,12 @@ export default function ProductsPage() {
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null)
   const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false)
   const previewRef = useRef<HTMLDivElement | null>(null)
+  const { setIsPDFViewerOpen: setGlobalPDFViewerOpen } = usePDFViewer()
+
+  // Sync local PDF viewer state with global context
+  useEffect(() => {
+    setGlobalPDFViewerOpen(isPDFViewerOpen)
+  }, [isPDFViewerOpen, setGlobalPDFViewerOpen])
 
   // Filter brands based on search term
   const filteredBrands = brands.filter(brand =>

@@ -173,6 +173,7 @@ export function PDFViewer({ src, title, isOpen, onClose, onFullscreen }: PDFView
     setIsLoading(true)
   }, [src])
 
+
   // Generate mobile-optimized URL
   const getOptimizedSrc = () => {
     const baseUrl = src
