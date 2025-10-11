@@ -55,6 +55,8 @@ export interface Brand {
   id: string
   name: string
   image: string
+  catalogDriveLink?: string
+  catalogFileName?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -63,6 +65,8 @@ export interface BrandPost {
   id?: string
   name: string
   image: string
+  catalogDriveLink?: string
+  catalogFileName?: string
   createdAt?: Date
   updatedAt?: Date
 }

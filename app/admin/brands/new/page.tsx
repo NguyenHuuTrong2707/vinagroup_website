@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import { ImageUpload, ImageUploadRef } from "../../../../components/image-upload"
 import { useBrands } from "@/hooks/use-brands"
-import { BrandPost } from "@/types" 
+import { BrandPost } from "@/types"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
@@ -30,9 +30,13 @@ export default function NewBrandPage() {
     const [brand, setBrand] = useState<BrandPost>({
         name: "",
         image: "",
+        catalogDriveLink: "",
+        catalogFileName: "",
     })
 
     const [errors, setErrors] = useState<{ name?: string; image?: string }>({})
+    const [resolvingName, setResolvingName] = useState(false)
+    const [resolveErr, setResolveErr] = useState<string | undefined>()
 
 
     // Validate form
@@ -154,7 +158,58 @@ export default function NewBrandPage() {
                                             <span>{errors.name}</span>
                                         </p>
                                     )}
-                                  
+
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="catalogUrl" className="text-sm font-medium text-gray-700">
+                                        Link Google Drive Catalog (tùy chọn)
+                                    </Label>
+                                    <Input
+                                        id="catalogUrl"
+                                        value={brand.catalogDriveLink || ""}
+                                        onChange={(e) => {
+                                            setBrand(prev => ({ ...prev, catalogDriveLink: e.target.value }))
+                                            setResolveErr(undefined)
+                                        }}
+                                        onBlur={async () => {
+                                            const url = (brand.catalogDriveLink || "").trim()
+                                            if (!url) return
+                                            setResolvingName(true)
+                                            setResolveErr(undefined)
+                                            try {
+                                                const res = await fetch('/api/drive/filename', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ url })
+                                                })
+                                                const data = await res.json()
+                                                if (!res.ok) throw new Error(data?.error || 'Không thể lấy tên file')
+                                                setBrand(prev => ({ ...prev, catalogFileName: data.fileName || '' }))
+                                            } catch (err: any) {
+                                                setResolveErr(err?.message || 'Không thể lấy tên file')
+                                            } finally {
+                                                setResolvingName(false)
+                                            }
+                                        }}
+                                        placeholder="Dán link Google Drive đến file catalog (PDF)"
+                                        className="h-12"
+                                    />
+                                    <div className="min-h-[1.5rem] text-sm text-gray-600">
+                                        {resolvingName ? (
+                                            <div className="inline-flex items-center text-gray-500">
+                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Đang lấy tên file...
+                                            </div>
+                                        ) : brand.catalogFileName ? (
+                                            <div className="inline-flex items-center">
+                                                <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> {brand.catalogFileName}
+                                            </div>
+                                        ) : resolveErr ? (
+                                            <div className="inline-flex items-center text-red-600">
+                                                <AlertCircle className="h-4 w-4 mr-2" /> {resolveErr}
+                                            </div>
+                                        ) : null}
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -28,6 +28,8 @@ export interface BrandDocument {
   id: string
   name: string
   image: string
+  catalogDriveLink?: string
+  catalogFileName?: string
   createdAt: Timestamp | FieldValue
   updatedAt: Timestamp | FieldValue
 }
@@ -58,6 +60,8 @@ class FirestoreBrandService {
       id: doc.id,
       name: data.name,
       image: data.image,
+      catalogDriveLink: data.catalogDriveLink,
+      catalogFileName: data.catalogFileName,
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(),
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(),
     }
@@ -70,6 +74,8 @@ class FirestoreBrandService {
     return {
       name: post.name,
       image: post.image,
+      catalogDriveLink: post.catalogDriveLink,
+      catalogFileName: post.catalogFileName,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }

@@ -44,10 +44,14 @@ export default function EditBrandPage() {
   const [brand, setBrand] = useState<BrandPost>({
     name: "",
     image: "",
+    catalogDriveLink: "",
+    catalogFileName: "",
   })
 
   const [errors, setErrors] = useState<{ name?: string; image?: string }>({})
   const [loading, setLoading] = useState(true)
+  const [resolvingName, setResolvingName] = useState(false)
+  const [resolveErr, setResolveErr] = useState<string | undefined>()
 
   // Load brand data
   useEffect(() => {
@@ -61,6 +65,8 @@ export default function EditBrandPage() {
             id: brandData.id,
             name: brandData.name,
             image: brandData.image || "",
+            catalogDriveLink: brandData.catalogDriveLink || "",
+            catalogFileName: brandData.catalogFileName || "",
             createdAt: brandData.createdAt,
             updatedAt: brandData.updatedAt,
           }
@@ -232,6 +238,58 @@ export default function EditBrandPage() {
                 </div>
               </div>
             </div>
+          <div className="max-w-md mx-auto w-full space-y-4 mt-6">
+            <div className="space-y-3">
+              <Label htmlFor="catalogUrl" className="text-sm font-medium text-gray-700">
+                Link Google Drive Catalog (tùy chọn)
+              </Label>
+              <Input
+                id="catalogUrl"
+                value={brand.catalogDriveLink || ""}
+                onChange={(e) => {
+                  setBrand(prev => ({ ...prev, catalogDriveLink: e.target.value }))
+                  setResolveErr(undefined)
+                }}
+                onBlur={async () => {
+                  const url = (brand.catalogDriveLink || "").trim()
+                  if (!url) return
+                  setResolvingName(true)
+                  setResolveErr(undefined)
+                  try {
+                    const res = await fetch('/api/drive/filename', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ url })
+                    })
+                    const data = await res.json()
+                    if (!res.ok) throw new Error(data?.error || 'Không thể lấy tên file')
+                    setBrand(prev => ({ ...prev, catalogFileName: data.fileName || '' }))
+                  } catch (err: any) {
+                    setResolveErr(err?.message || 'Không thể lấy tên file')
+                  } finally {
+                    setResolvingName(false)
+                  }
+                }}
+                placeholder="Dán link Google Drive đến file catalog (PDF)"
+                className="h-12"
+              />
+              <div className="min-h-[1.5rem] text-sm text-gray-600">
+                {resolvingName ? (
+                  <div className="inline-flex items-center text-gray-500">
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Đang lấy tên file...
+                  </div>
+                ) : brand.catalogFileName ? (
+                  <div className="inline-flex items-center">
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> {brand.catalogFileName}
+                  </div>
+                ) : resolveErr ? (
+                  <div className="inline-flex items-center text-red-600">
+                    <AlertCircle className="h-4 w-4 mr-2" /> {resolveErr}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
             {/* Interactive Buttons - Fixed at Bottom */}
             <div className="bg-white flex px-6 py-4">
               <div className="max-w-4xl mx-auto">

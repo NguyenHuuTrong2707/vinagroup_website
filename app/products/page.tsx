@@ -2,10 +2,11 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { PDFViewer } from "@/components/pdf-viewer"
 import { useActiveBrands } from "@/hooks/use-brands"
 import Image from "next/image"
-import { Loader2, Search } from "lucide-react"
-import { useState } from "react"
+import { ChevronLeft, Loader2, Search, Eye } from "lucide-react"
+import { useState, useMemo, useRef, useEffect } from "react"
 
 export default function ProductsPage() {
   // Fetch all active brands
@@ -13,11 +14,49 @@ export default function ProductsPage() {
   
   // Search state
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null)
+  const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false)
+  const previewRef = useRef<HTMLDivElement | null>(null)
   
   // Filter brands based on search term
   const filteredBrands = brands.filter(brand => 
     brand.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const selectedBrand = useMemo(() => {
+    return brands.find(b => b.id === selectedBrandId) || null
+  }, [brands, selectedBrandId])
+
+  function extractDriveFileId(url?: string | null): string | null {
+    if (!url) return null
+    try {
+      const u = new URL(url)
+      if (!u.hostname.includes('drive.google.com')) return null
+      const fileMatch = u.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+      if (fileMatch) return fileMatch[1]
+      const openId = u.searchParams.get('id')
+      if (openId) return openId
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  const previewSrc = useMemo(() => {
+    const id = extractDriveFileId(selectedBrand?.catalogDriveLink || null)
+    return id ? `https://drive.google.com/file/d/${id}/preview?rm=minimal` : null
+  }, [selectedBrand])
+
+  const fullscreenPreviewSrc = useMemo(() => {
+    const id = extractDriveFileId(selectedBrand?.catalogDriveLink || null)
+    return id ? `https://drive.google.com/file/d/${id}/preview` : null
+  }, [selectedBrand])
+
+  useEffect(() => {
+    if (selectedBrandId && previewRef.current) {
+      previewRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [selectedBrandId])
 
   return (
       <div className="min-h-screen bg-background">
@@ -33,6 +72,7 @@ export default function ProductsPage() {
         </section>
 
         {/* Brands Section */}
+        {!selectedBrand && (
         <section className="py-8 sm:py-12 lg:py-16 bg-gray-100 min-h-screen">
           <div className="container mx-auto px-4">
             {/* Breadcrumb */}
@@ -75,24 +115,36 @@ export default function ProductsPage() {
                 {filteredBrands.map((brand) => (
                   <div
                     key={brand.id}
-                    className="bg-white rounded-lg border border-gray-200 p-2 sm:p-4 lg:p-6 hover:shadow-lg hover:border-primary/30 transition-all duration-300 text-center group"
+                    className={`bg-white rounded-lg border p-2 sm:p-4 lg:p-6 transition-all duration-300 text-center group relative ${selectedBrandId === brand.id && !isPDFViewerOpen ? 'border-primary/60 shadow-lg' : 'border-gray-200 hover:shadow-lg hover:border-primary/30'}`}
                   >
-                    <div className="mb-2 sm:mb-4 flex justify-center">
-                      <div className="relative w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
-                        {brand.image ? (
-                          <Image
-                            src={brand.image}
-                            alt={brand.name}
-                            fill
-                            className="object-contain transition-transform duration-300 group-hover:scale-110"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                            <span className="text-xs text-gray-400">No Image</span>
-                          </div>
-                        )}
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setSelectedBrandId(brand.id)
+                        if (brand.catalogDriveLink) {
+                          setIsPDFViewerOpen(true)
+                        }
+                      }}
+                    >
+                      <div className="mb-2 sm:mb-4 flex justify-center">
+                        <div className="relative w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
+                          {brand.image ? (
+                            <Image
+                              src={brand.image}
+                              alt={brand.name}
+                              fill
+                              className="object-contain transition-transform duration-300 group-hover:scale-110"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
+                              <span className="text-xs text-gray-400">No Image</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
+                     
                     </div>
+                
                   </div>
                 ))}
               </div>
@@ -129,6 +181,72 @@ export default function ProductsPage() {
             )}
           </div>
         </section>
+        )}
+
+        {/* Selected Brand Catalog Preview */}
+        {selectedBrand && !isPDFViewerOpen && (
+          <section className="py-6 sm:py-8 lg:py-10 bg-white min-h-screen" ref={previewRef}>
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  onClick={() => setSelectedBrandId(null)}
+                  className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md px-3 py-1 transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Quay lại</span>
+                </button>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 text-center flex-1 mx-4">
+                   {selectedBrand.name}
+                </h2>
+                {fullscreenPreviewSrc && (
+                  <button
+                    onClick={() => setIsPDFViewerOpen(true)}
+                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span className="hidden sm:inline">Xem toàn màn hình</span>
+                    <span className="sm:hidden">Toàn màn hình</span>
+                  </button>
+                )}
+              </div>
+              {previewSrc ? (
+                <div className="relative w-full aspect-[16/10] bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
+                  <iframe
+                    src={previewSrc}
+                    className="w-full h-full"
+                    allow="autoplay"
+                    referrerPolicy="no-referrer"
+                    allowFullScreen
+                    title={`Catalog ${selectedBrand.name}`}
+                  />
+                  {/* Click-block overlay to prevent Drive pop-out button */}
+                  <div
+                    className="absolute top-0 right-0 w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 cursor-default"
+                    aria-hidden="true"
+                  />
+                </div>
+              ) : (
+                <div className="text-sm text-gray-600">Thương hiệu này chưa có link catalog.</div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* PDF Viewer Modal */}
+        {fullscreenPreviewSrc && selectedBrand && (
+          <PDFViewer
+            src={fullscreenPreviewSrc}
+            title={`Catalog ${selectedBrand.name}`}
+            isOpen={isPDFViewerOpen}
+            onClose={() => {
+              setIsPDFViewerOpen(false)
+              setSelectedBrandId(null)
+            }}
+            onFullscreen={() => {
+              // Additional fullscreen handling if needed
+            }}
+          />
+        )}
 
         <Footer />
       </div>

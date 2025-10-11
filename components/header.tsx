@@ -86,14 +86,14 @@ export function Header() {
               >
                 Products
               </Link>
-              <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg 
+              <div className="absolute -left-150 top-full mt-9 bg-white border border-border rounded-md shadow-lg 
                 opacity-0 invisible group-hover:opacity-100 group-hover:visible 
-                transition-all duration-200 w-[600px] z-50">
+                transition-all duration-200 w-[1200px] z-50">
                 <div className="p-6">
                   {brandsLoading ? (
                     <div className="text-center py-4 text-sm text-muted-foreground">Loading brands...</div>
                   ) : brands.length > 0 ? (
-                    <div className="grid grid-cols-4 gap-6">
+                    <div className="grid grid-cols-10 gap-6">
                       {brands.map((brand) => (
                         <Link
                           key={brand.id}
@@ -410,15 +410,24 @@ export function Header() {
                 Catalog
               </Link>
               <div>
-                <button
-                  className="w-full text-left text-foreground hover:text-primary transition-colors py-2 text-base flex items-center justify-between"
-                  onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-                  aria-expanded={isMobileProductsOpen}
-                  aria-controls="mobile-products-submenu"
-                >
-                  <span>Products</span>
-                  <span className="text-xs text-muted-foreground">{isMobileProductsOpen ? "−" : "+"}</span>
-                </button>
+                <div className="flex items-center justify-between">
+                  <Link
+                    href="/products"
+                    className={`${baseMobileLinkClass}${isActiveStartsWith("/products") ? activeUnderlineClass : ""} flex-1`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Products
+                  </Link>
+                  <button
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-2"
+                    onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
+                    aria-expanded={isMobileProductsOpen}
+                    aria-controls="mobile-products-submenu"
+                    aria-label="Toggle products submenu"
+                  >
+                    {isMobileProductsOpen ? "−" : "+"}
+                  </button>
+                </div>
                 {isMobileProductsOpen && (
                   <div id="mobile-products-submenu" className="pl-4 border-l border-border py-2">
                     {brandsLoading ? (
