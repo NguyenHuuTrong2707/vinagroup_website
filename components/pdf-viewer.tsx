@@ -201,11 +201,10 @@ export function PDFViewer({ src, title, isOpen, onClose, onFullscreen }: PDFView
         <div className="flex items-center justify-between p-2 sm:p-4">
           {/* Left side - Title */}
           <div className="flex-1 min-w-0">
-            <h2 className="text-white text-sm sm:text-base font-medium truncate">
+            {/* <h2 className="text-white text-sm sm:text-base font-medium truncate">
               {title}
-            </h2>
+            </h2> */}
           </div>
-
           {/* Center - Zoom and Rotation Controls */}
           <div className="hidden sm:flex items-center gap-2">
             <Button
@@ -234,17 +233,6 @@ export function PDFViewer({ src, title, isOpen, onClose, onFullscreen }: PDFView
 
           {/* Right side - Action buttons */}
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleFullscreen}
-              className="text-white hover:bg-white/10"
-            >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              <span className="hidden lg:inline ml-1">
-                {isFullscreen ? 'Thoát' : 'Toàn màn hình'}
-              </span>
-            </Button>
             <Button
               variant="ghost"
               size="sm"

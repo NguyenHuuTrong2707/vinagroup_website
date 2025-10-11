@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useActiveBrands } from "@/hooks/use-brands"
 import { Brand } from "@/types"
+import { PDFViewer } from "@/components/pdf-viewer"
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -18,6 +19,8 @@ export function Header() {
   const [authMode, setAuthMode] = useState<'login' | 'forgot'>('login')
   const [showPassword, setShowPassword] = useState(false)
   const [phoneError, setPhoneError] = useState('')
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null)
+  const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false)
   const pathname = usePathname()
   const { brands, loading: brandsLoading } = useActiveBrands(10)
 
@@ -28,6 +31,51 @@ export function Header() {
 
   const isActive = (href: string) => pathname === href
   const isActiveStartsWith = (prefix: string) => pathname?.startsWith(prefix)
+
+  // Helper function to extract Google Drive file ID
+  function extractDriveFileId(url?: string | null): string | null {
+    if (!url) return null
+    try {
+      const u = new URL(url)
+      if (!u.hostname.includes('drive.google.com')) return null
+      const fileMatch = u.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+      if (fileMatch) return fileMatch[1]
+      const openId = u.searchParams.get('id')
+      if (openId) return openId
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  // Get selected brand for PDF viewing
+  const selectedBrand = useMemo(() => {
+    return brands.find(b => b.id === selectedBrandId) || null
+  }, [brands, selectedBrandId])
+
+  // Generate PDF preview URLs
+  const previewSrc = useMemo(() => {
+    const id = extractDriveFileId(selectedBrand?.catalogDriveLink || null)
+    return id ? `https://drive.google.com/file/d/${id}/preview?rm=minimal` : null
+  }, [selectedBrand])
+
+  const fullscreenPreviewSrc = useMemo(() => {
+    const id = extractDriveFileId(selectedBrand?.catalogDriveLink || null)
+    return id ? `https://drive.google.com/file/d/${id}/preview` : null
+  }, [selectedBrand])
+
+  // Handle brand selection with PDF viewing
+  const handleBrandClick = (brand: Brand) => {
+    if (brand.catalogDriveLink) {
+      setSelectedBrandId(brand.id)
+      setIsPDFViewerOpen(true)
+    } else {
+      // Navigate to products page if no catalog
+      window.location.href = `/products?category=${encodeURIComponent(
+        brand.name.toLowerCase().replace(/\s+/g, '-')
+      )}`
+    }
+  }
 
   const validatePhoneNumber = (value: string) => {
     // Remove all non-numeric characters for validation
@@ -95,12 +143,11 @@ export function Header() {
                   ) : brands.length > 0 ? (
                     <div className="grid grid-cols-10 gap-6">
                       {brands.map((brand) => (
-                        <Link
+                        <button
                           key={brand.id}
-                          href={`/products?category=${encodeURIComponent(
-                            brand.name.toLowerCase().replace(/\s+/g, '-')
-                          )}`}
-                          className="group/brand flex justify-center items-center hover:bg-primary/5 transition-colors rounded-lg p-3"
+                          onClick={() => handleBrandClick(brand)}
+                          className="group/brand flex justify-center items-center hover:bg-primary/5 transition-colors rounded-lg p-3 w-full"
+                          title={brand.name}
                         >
                           <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 flex items-center justify-center">
                             <Image
@@ -111,7 +158,7 @@ export function Header() {
                               title={brand.name}
                             />
                           </div>
-                        </Link>
+                        </button>
                       ))}
                     </div>
                   ) : (
@@ -435,14 +482,15 @@ export function Header() {
                     ) : brands.length > 0 ? (
                       <div className="grid grid-cols-3 gap-4 sm:grid-cols-4">
                         {brands.map((brand) => (
-                          <Link
+                          <button
                             key={brand.id}
-                            href={`/products?category=${encodeURIComponent(
-                              brand.name.toLowerCase().replace(/\s+/g, '-')
-                            )}`}
+                            onClick={() => {
+                              handleBrandClick(brand)
+                              setIsMobileMenuOpen(false)
+                            }}
                             className="group/brand flex flex-col items-center justify-center p-3 border border-border rounded-xl 
-                 bg-white shadow-sm hover:shadow-md transition-all hover:border-primary/30"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                 bg-white shadow-sm hover:shadow-md transition-all hover:border-primary/30 w-full"
+                            title={brand.name}
                           >
                             <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
                               <Image
@@ -453,7 +501,7 @@ export function Header() {
                                 title={brand.name}
                               />
                             </div>
-                          </Link>
+                          </button>
                         ))}
                       </div>
                     ) : (
@@ -473,6 +521,22 @@ export function Header() {
           </div>
         )}
       </div>
+
+      {/* PDF Viewer Modal */}
+      {fullscreenPreviewSrc && selectedBrand && (
+        <PDFViewer
+          src={fullscreenPreviewSrc}
+          title={`Catalog ${selectedBrand.name}`}
+          isOpen={isPDFViewerOpen}
+          onClose={() => {
+            setIsPDFViewerOpen(false)
+            setSelectedBrandId(null)
+          }}
+          onFullscreen={() => {
+            // Additional fullscreen handling if needed
+          }}
+        />
+      )}
     </header>
   )
 }
