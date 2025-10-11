@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Tag
+  Tag,
+  Edit
 } from "lucide-react"
 import { useState } from "react"
 import { logout } from "@/lib/firebase-auth"
@@ -36,6 +37,12 @@ export function AdminSidebar() {
       href: "/admin",
       icon: LayoutDashboard,
       description: "Tổng quan hệ thống"
+    },
+    {
+      title: "Quản lý Nội dung",
+      href: "/admin/cms",
+      icon: Edit,
+      description: "Chỉnh sửa trang chủ"
     },
     {
       title: "Quản lý Tin tức",

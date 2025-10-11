@@ -1,7 +1,7 @@
-import { 
-  Newspaper, 
-  Users, 
-  Package, 
+import {
+  Newspaper,
+  Users,
+  Package,
   TrendingUp,
   Eye,
   Edit,
@@ -75,36 +75,34 @@ export default function AdminDashboard() {
     }
   ]
 
-    return (
+  return (
     <div className="space-y-6">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600">Tổng quan về hoạt động của hệ thống VINAGROUP</p>
       </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
-    return (
+          return (
             <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  <p className={`text-sm mt-1 ${
-                    stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <p className={`text-sm mt-1 ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+                    }`}>
                     {stat.change} so với tháng trước
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${stat.color}`}>
                   <Icon className="h-6 w-6 text-white" />
                 </div>
-        </div>
-      </div>
-    )
+              </div>
+            </div>
+          )
         })}
       </div>
 
@@ -117,7 +115,7 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold text-gray-900">Hoạt động gần đây</h2>
             </div>
             <div className="p-6">
-      <div className="space-y-4">
+              <div className="space-y-4">
                 {recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-start space-x-3">
                     <div className="flex-shrink-0">
@@ -129,12 +127,12 @@ export default function AdminDashboard() {
                         {activity.time} • {activity.user}
                       </p>
                     </div>
-        </div>
+                  </div>
                 ))}
+              </div>
+            </div>
+          </div>
         </div>
-        </div>
-      </div>
-    </div>
 
         {/* Quick Actions */}
         <div className="lg:col-span-1">
@@ -152,7 +150,7 @@ export default function AdminDashboard() {
                   Tạo tin tức mới
                 </span>
               </a>
-              
+
               <a
                 href="/admin/products/new"
                 className="flex items-center p-3 rounded-lg bg-secondary/5 hover:bg-secondary/10 transition-colors group"
@@ -162,7 +160,7 @@ export default function AdminDashboard() {
                   Thêm sản phẩm mới
                 </span>
               </a>
-              
+
               <a
                 href="/admin/news"
                 className="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
@@ -172,7 +170,7 @@ export default function AdminDashboard() {
                   Quản lý tin tức
                 </span>
               </a>
-              
+
               <a
                 href="/admin/users"
                 className="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"

@@ -1,0 +1,34 @@
+{
+  "title": "Phân phối lốp xe cao cấp từ các thương hiệu lớn",
+  "subtitle": "Nhà phân phối chính thức của các nhà sản xuất lốp xe hàng đầu thế giới. Chất lượng, hiệu suất và an toàn cho mọi hành trình.",
+  "primaryButtonText": "Sản phẩm",
+  "primaryButtonLink": "/products",
+  "secondaryButtonText": "Catalog",
+  "secondaryButtonLink": "/catalog",
+  "slides": [
+    {
+      "id": 1,
+      "type": "image",
+      "src": "/industrial-tire-manufacturing-machinery-close-up.jpg",
+      "alt": "Dây chuyền sản xuất lốp",
+      "active": true
+    },
+    {
+      "id": 2,
+      "type": "image",
+      "src": "/modern-tire-manufacturing-factory-exterior-aerial-.jpg",
+      "alt": "Toàn cảnh nhà máy",
+      "active": true
+    },
+    {
+      "id": 3,
+      "type": "image",
+      "src": "/modern-tire-manufacturing-facility.jpg",
+      "alt": "Nhà máy hiện đại",
+      "active": true
+    }
+  ],
+  "autoplay": true,
+  "autoplaySpeed": 6000,
+  "lastUpdated": "2025-10-11T03:07:45.362Z"
+}

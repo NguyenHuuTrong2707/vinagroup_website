@@ -4,42 +4,70 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
+import { heroSectionService, HeroSectionData } from "@/lib/services/hero-section-service"
 
 type Slide =
   | { type: "image"; src: string; alt: string }
   | { type: "video"; src: string; poster?: string; alt: string }
 
 export function HeroSection() {
-  const slides: Slide[] = useMemo(
-    () => [
-      { type: "image", src: "/industrial-tire-manufacturing-machinery-close-up.jpg", alt: "Dây chuyền sản xuất lốp" },
-      { type: "image", src: "/modern-tire-manufacturing-factory-exterior-aerial-.jpg", alt: "Toàn cảnh nhà máy" },
-      { type: "image", src: "/modern-tire-manufacturing-facility.jpg", alt: "Nhà máy hiện đại" },
-    ],
-    [],
-  )
+  const [heroData, setHeroData] = useState<HeroSectionData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const slides: Slide[] = useMemo(() => {
+    if (!heroData?.slides) {
+      return []
+    }
+    // Convert heroData slides to component slides format
+    return heroData.slides
+      .filter(slide => slide.active && slide.src) // Only active slides with src
+      .map(slide => ({
+        type: slide.type as "image" | "video",
+        src: slide.src,
+        alt: slide.alt,
+        poster: slide.poster
+      }))
+  }, [heroData])
 
   const [index, setIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-  const [durationMs, setDurationMs] = useState(6000)
+  const [durationMs, setDurationMs] = useState(heroData?.autoplaySpeed || 6000)
 
+  // Load hero section data
+  useEffect(() => {
+    const loadHeroData = async () => {
+      try {
+        const data = await heroSectionService.getHeroSection()
+        setHeroData(data)
+      } catch (error) {
+        console.error("Error loading hero section:", error)
+        // Keep fallback data
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadHeroData()
+  }, [])
+
+  // Update duration based on hero data and screen size
   useEffect(() => {
     const updateDuration = () => {
-      const next = typeof window !== "undefined" && window.innerWidth < 640 ? 4000 : 6000
+      const baseSpeed = heroData?.autoplaySpeed || 6000
+      const next = typeof window !== "undefined" && window.innerWidth < 640 ? baseSpeed * 0.67 : baseSpeed
       setDurationMs(next)
     }
     updateDuration()
     window.addEventListener("resize", updateDuration)
     return () => window.removeEventListener("resize", updateDuration)
-  }, [])
+  }, [heroData?.autoplaySpeed])
 
   useEffect(() => {
-    if (isPaused) return
+    if (isPaused || !heroData?.autoplay || slides.length <= 1) return
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % slides.length)
     }, durationMs)
     return () => clearInterval(timer)
-  }, [slides.length, isPaused, durationMs])
+  }, [slides.length, isPaused, durationMs, heroData?.autoplay])
 
   // const goNext = () => setIndex((p) => (p + 1) % slides.length)
   // const goPrev = () => setIndex((p) => (p - 1 + slides.length) % slides.length)
@@ -51,8 +79,9 @@ export function HeroSection() {
       onMouseLeave={() => setIsPaused(false)}
     >
       {/* Các slide */}
-      <div className="absolute inset-0">
-        {slides.map((slide, i) => (
+      {slides.length > 0 && (
+        <div className="absolute inset-0">
+          {slides.map((slide, i) => (
           <div
             key={i}
             className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${i === index ? "opacity-100" : "opacity-0"}`}
@@ -89,7 +118,8 @@ export function HeroSection() {
             )}
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Lớp phủ tối */}
       <div className="absolute inset-0 bg-black/40" />
@@ -97,30 +127,46 @@ export function HeroSection() {
       {/* Nội dung */}
       <div className="relative container mx-auto px-4 h-full flex items-center">
         <div className="max-w-2xl text-white">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-balance leading-tight">
-            Phân phối lốp xe cao cấp từ các thương hiệu lớn
-          </h1>
-          <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 text-pretty opacity-90 leading-relaxed">
-          Nhà phân phối chính thức của các nhà sản xuất lốp xe hàng đầu thế giới. Chất lượng, hiệu suất và an toàn cho mọi hành trình.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Link href="/products">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
-                Sản phẩm
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/catalog">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-slate-900 bg-transparent w-full sm:w-auto"
-              >
-                Catalog
-              </Button>
-            </Link>
-          </div>
-          {/* Chỉ báo chuyển slide (đã chuyển xuống giữa phía dưới) */}
+          {isLoading ? (
+            <div className="animate-pulse">
+              <div className="h-8 bg-white/20 rounded mb-4"></div>
+              <div className="h-6 bg-white/20 rounded mb-8 w-3/4"></div>
+              <div className="flex gap-4">
+                <div className="h-10 bg-white/20 rounded w-32"></div>
+                <div className="h-10 bg-white/20 rounded w-24"></div>
+              </div>
+            </div>
+          ) : (
+            <>
+               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-balance leading-tight">
+                 {heroData?.title}
+               </h1>
+               <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 text-pretty opacity-90 leading-relaxed">
+                 {heroData?.subtitle}
+               </p>
+               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                 {heroData?.primaryButtonLink && (
+                   <Link href={heroData.primaryButtonLink}>
+                     <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
+                       {heroData?.primaryButtonText}
+                       <ArrowRight className="h-4 w-4" />
+                     </Button>
+                   </Link>
+                 )}
+                 {heroData?.secondaryButtonLink && (
+                   <Link href={heroData.secondaryButtonLink}>
+                     <Button
+                       size="lg"
+                       variant="outline"
+                       className="border-white text-white hover:bg-white hover:text-slate-900 bg-transparent w-full sm:w-auto"
+                     >
+                       {heroData?.secondaryButtonText}
+                     </Button>
+                   </Link>
+                 )}
+               </div>
+            </>
+          )}
         </div>
       </div>
 
